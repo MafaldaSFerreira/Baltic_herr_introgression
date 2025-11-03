@@ -1,5 +1,7 @@
 # Code to plot Twisst results in Figures 2 and Supplementary Figures 6, 7 and 8
 
+library(tidyverse)
+
 # Introgression regions ####
 intro_reg_collapsed<-read.table(header=T,"scan1_v01_baltic_alt_ref_intro_regions_cov7_min50kb.9regions.collapsed.txt")
 
