@@ -1,6 +1,7 @@
 # ABBA-BABA analysis
 
 run_dtrios_maf5_23-11.sh
+
 ~~~bash
 #!/bin/bash
 #SBATCH -A naiss2023-5-222
@@ -29,6 +30,8 @@ run=$(date +%H%M_%F)
 ~~~
 
 # Dinvestigate
+
+
 
 run_dinvestigate_v02_maf5_2023-11-30.sh
 ~~~bash
@@ -59,5 +62,8 @@ run=$(date +%H%M_%F)
 /proj/snic2020-2-19/private/herring/users/mafalda/software/Dsuite/Build/Dsuite Dinvestigate -n run_${run}_w${JKNUM}_s${STEP} --window=${JKNUM},${STEP} ${DATA_WD}/herring_sentieon_125ind_231031.newID.filter.setGT.noIndels.minDP3.0maxDP3.0avg.miss0.2.biallelic.maf5.sprat.filtered.vcf.gz ${POP_WD}/clusters_v03.txt ${POP_WD}/trios_v02.txt
 ~~~
 
+I deployed the above script passing the arguments to the sbatch command
 
+~~~bash
 sbatch --export=ALL,ARG1="50",ARG2="25" run_dinvestigate_v02_maf5_2023-11-30.sh
+~~~
