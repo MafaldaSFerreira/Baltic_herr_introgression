@@ -129,3 +129,76 @@ baltic_spring_vs_arctic_pacific_chiseq$SNP<-paste0(baltic_spring_vs_arctic_pacif
 save(baltic_spring_vs_arctic_pacific_chiseq, file = "baltic_spring_vs_arctic_pacific_han_pops_chiseq.output.RData")
 load("baltic_spring_vs_arctic_pacific_han_pops_chiseq.output.RData")
 
+
+# Table 1 ####
+# Find overlaps with the introgression regions:
+# Read in introgressed regions coordinates. Let's use non-collapsed for now
+intro_regions<-read.table(header=T, "~/Documents/Postdoc/Project_Herring/Introgression/introgression_scan/2023-11-16_analysis/introgression_regions/scan1_v01_baltic_alt_ref_intro_regions_cov7_min50kb.txt")
+intro_reg_gr <- makeGRangesFromDataFrame(intro_regions)
+intro_regions$name <- paste0(intro_regions$seqnames, "_", intro_regions$start, "_", intro_regions$end)
+
+# Convert to GRanges:
+baltic_spring_vs_atlantic_spring_chiseq_gr <- GRanges(seqnames=baltic_spring_vs_atlantic_spring_chiseq$CHROM,
+                                                      IRanges(start=baltic_spring_vs_atlantic_spring_chiseq$POS,
+                                                              end=baltic_spring_vs_atlantic_spring_chiseq$POS))
+
+
+overlaps_bs_as_intro_reg <- findOverlaps(baltic_spring_vs_atlantic_spring_chiseq_gr, intro_reg_gr)
+
+overlaps_bs_as_intro_reg_df <- baltic_spring_vs_atlantic_spring_chiseq[overlaps_bs_as_intro_reg@from,]
+overlaps_bs_as_intro_reg_df$intro_reg <- NA
+overlaps_bs_as_intro_reg_df$intro_reg <- intro_regions[overlaps_bs_as_intro_reg@to,]$name
+
+data.frame(overlaps_bs_as_intro_reg_df) %>%
+  group_by(intro_reg) %>%
+  summarise(
+    Position_Spring = POS[which.min(chisq_p)],
+    dAF_Spring = dAF[which.min(chisq_p)],
+    chi_Spring_top = min(chisq_p)) %>% 
+  print(n=100) 
+
+
+# For autumn
+baltic_autumn_vs_atlantic_autumn_chiseq_gr <- GRanges(seqnames=baltic_autumn_vs_atlantic_autumn_chiseq$CHROM,
+                                                      IRanges(start=baltic_autumn_vs_atlantic_autumn_chiseq$POS,
+                                                              end=baltic_autumn_vs_atlantic_autumn_chiseq$POS))
+
+
+overlaps_ba_aa_intro_reg <- findOverlaps(baltic_autumn_vs_atlantic_autumn_chiseq_gr, intro_reg_gr)
+
+overlaps_ba_aa_intro_reg_df <- baltic_autumn_vs_atlantic_autumn_chiseq[overlaps_ba_aa_intro_reg@from,]
+overlaps_ba_aa_intro_reg_df$intro_reg <- NA
+overlaps_ba_aa_intro_reg_df$intro_reg <- intro_regions[overlaps_ba_aa_intro_reg@to,]$name
+
+
+results_ba_aa <- data.frame(overlaps_ba_aa_intro_reg_df) %>%
+  group_by(intro_reg) %>%
+  summarise(
+    Position_Autumn = POS[which.min(chisq_p)],
+    dAF_Autumn = dAF[which.min(chisq_p)],
+    AlleleFreq1 = freqpop1[which.min(chisq_p)],
+    AlleleFreq2 = freqpop2[which.min(chisq_p)],
+    chi_Autumn_top = min(chisq_p)) %>% 
+  print(n=100) 
+
+results_bs_as <- data.frame(overlaps_bs_as_intro_reg_df) %>%
+  group_by(intro_reg) %>%
+  summarise(
+    Position_Spring = POS[which.min(chisq_p)],
+    dAF_Spring = dAF[which.min(chisq_p)],
+    AlleleFreq1 = freqpop1[which.min(chisq_p)],
+    AlleleFreq2 = freqpop2[which.min(chisq_p)],
+    chi_Spring_top = min(chisq_p)) %>% 
+  print(n=100) 
+
+results_bs_as$results <- paste0(formatC(results_bs_as$Position_Spring, big.mark=","), " / ", sprintf("%.1f", -log10(results_bs_as$chi_Spring_top))  ," / ", sprintf("%.2f", results_bs_as$dAF_Spring))
+
+results_ba_aa$results <- paste0(formatC(results_ba_aa$Position_Autumn, big.mark=","), " / ", sprintf("%.1f", -log10(results_ba_aa$chi_Autumn_top))  ," / ", sprintf("%.2f", results_ba_aa$dAF_Autumn))
+
+View(cbind(results_bs_as$results, results_ba_aa$results))
+
+write.table(results_bs_as, "~/Documents/Postdoc/Repositories/Baltic_herr_introgression/5.processing_pool_seq_data/results/results_bs_as_table_1.txt", col.names = T, row.names = F, quote = F, sep = "\t")
+write.table(results_ba_aa, "~/Documents/Postdoc/Repositories/Baltic_herr_introgression/5.processing_pool_seq_data/results/results_ba_aa_table_1.txt", col.names = T, row.names = F, quote = F, sep = "\t")
+
+
+
