@@ -525,6 +525,7 @@ supplementary_table3 <- scan1_v01_baltic_alt_ref_summary_filter2_cov7_gr_min50kb
   summarise(Annotations = paste(unique(genes), collapse =", ")) %>%
   print(n=100)
 
+# Results present in Supplementary Table 4
 write.table(supplementary_table3, "introgression_regions_annotations/scan1_v01_baltic_alt_ref_summary_filter2_cov7_gr_min50kb.maxgap20K.asTableS3.txt", col.names = T, row.names = F, quote = F, sep = "\t")
 
 
