@@ -1,7 +1,7 @@
 # This R code allows to re-plot Figure 3 in the Baltic introgression paper
 # All input files can be found either on GitHub or Figshare (if too big)
 
-setwd("~/Documents/Postdoc/Project_Herring/Introgression/Manuscript/Figshare/")
+setwd("Manuscript/Figshare/")
 
 # INPUT FILES ####
 

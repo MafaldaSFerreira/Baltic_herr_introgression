@@ -4,7 +4,7 @@
 # Libraries ####
 library(tidyverse) 
 
-setwd("~/Documents/Postdoc/Project_Herring/Introgression/Manuscript/Figshare/")
+setwd("Manuscript/Figshare/")
 
 # Sprat as outgroup maf 0.05 JK1000 ####
 # FOR PUBLICATION ####

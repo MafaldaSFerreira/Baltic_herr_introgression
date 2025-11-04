@@ -7,8 +7,7 @@ library(data.table)
 # INPUTS ####
 # Set the working directory
 # Let's load the snpEFF annotations of SNPs based on the high coverage data:
-setwd("~/Documents/Postdoc/Project_Herring/Introgression/candidate_regions/snpEff_annotations")
-setwd("~/Documents/Postdoc/Project_Herring/Introgression/Manuscript/Figshare/")
+setwd("Manuscript/Figshare/")
 
 # Read in introgressed regions coordinates. Let's use non-collapsed for now
 intro_regions<-read.table(header=T, "4.introgression_scan/introgression_regions/scan1_v01_baltic_alt_ref_intro_regions_cov7_min50kb.txt")

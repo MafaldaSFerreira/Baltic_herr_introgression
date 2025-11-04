@@ -4,8 +4,7 @@ library(tidyverse)
 
 
 # Introgression regions ####
-setwd("~/Documents/Postdoc/Project_Herring/Introgression/Manuscript/Figshare/")
-
+setwd("Manuscript/Figshare/")
 intro_reg_collapsed<-read.table(header=T,"4.introgression_scan/introgression_regions/scan1_v01_baltic_alt_ref_intro_regions_cov7_min50kb.9regions.collapsed.txt")
 
 intro_reg<-read.table(header=T,"4.introgression_scan/introgression_regions/scan1_v01_baltic_alt_ref_intro_regions_cov7_min50kb.txt")

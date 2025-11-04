@@ -3,7 +3,7 @@
 
 # Input files for this can be found in FigShare
 
-setwd("~/Documents/Postdoc/Project_Herring/Introgression/Manuscript/Figshare/")
+setwd("Manuscript/Figshare/")
 
 # Recalculate DAFs with Han et al Populations and AD ####
 ## Populations From Han Et al #### 

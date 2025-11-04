@@ -9,7 +9,7 @@ library(tidyverse)
 library(GenomicRanges)
 
 # Input files can be found in Figshare:
-setwd("~/Documents/Postdoc/Project_Herring/Introgression/Manuscript/Figshare/7.pixy/results_homozygotes_dxy/")
+setwd("Manuscript/Figshare/7.pixy/results_homozygotes_dxy/")
 
 # First let's read the dxy files
 dxy_files<-list.files(pattern = "out_dxy")

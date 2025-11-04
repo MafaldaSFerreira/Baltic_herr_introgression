@@ -6,7 +6,7 @@ library(stringr)
 library(tidyverse)
 
 # load the data ####
-setwd("~/Documents/Postdoc/Project_Herring/Introgression/Manuscript/Figshare/")
+setwd("Manuscript/Figshare/")
 
 load(file = "4.introgression_scan/intermediate_files/scan1_v01_baltic_alt_ref_summary_filter2.Rdata")
 

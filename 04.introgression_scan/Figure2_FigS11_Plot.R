@@ -2,19 +2,21 @@
 library(tidyverse)
 library(GenomicRanges)
 
+setwd("Manuscript/Figshare/")
+
 # Load Input files ####
-load(file="~/Documents/Postdoc/Project_Herring/Introgression/introgression_scan/2023-11-16_analysis/intermediate_files/herring_125.RData")
-load("~/Documents/Postdoc/Project_Herring/Introgression/introgression_scan/2023-11-16_analysis/intermediate_files/introgression_scan_2023-11-20.RData")
+load(file="4.introgression_scan/intermediate_files/herring_125.RData")
+load("4.introgression_scan/intermediate_files/introgression_scan_2023-11-20.RData")
 
 # Introgression regNULL# Introgression regions: 
-intro_reg<-read.table(header=T,"~/Documents/Postdoc/Project_Herring/Introgression/introgression_scan/2023-11-16_analysis/introgression_regions/scan1_v01_baltic_alt_ref_intro_regions_cov7_min50kb.txt")
+intro_reg<-read.table(header=T,"4.introgression_scan/introgression_regions/scan1_v01_baltic_alt_ref_intro_regions_cov7_min50kb.txt")
 head(intro_reg)
 
-intro_reg_collapsed<-read.table(header=T,"~/Documents/Postdoc/Project_Herring/Introgression/introgression_scan/2023-11-16_analysis/introgression_regions/scan1_v01_baltic_alt_ref_intro_regions_cov7_min50kb.9regions.collapsed.txt")
+intro_reg_collapsed<-read.table(header=T,"4.introgression_scan/introgression_regions/scan1_v01_baltic_alt_ref_intro_regions_cov7_min50kb.9regions.collapsed.txt")
 head(intro_reg_collapsed)
 
 # Compare with coverage #
-load("~/Documents/Postdoc/Project_Herring/Introgression/introgression_scan/2023-11-16_analysis/intermediate_files/scan1_v01_baltic_alt_ref_summary_filter2.Rdata")
+load("4.introgression_scan/intermediate_files/scan1_v01_baltic_alt_ref_summary_filter2.Rdata")
 
 
 # Modified code from HaploDistScan so that we can plot the 
@@ -190,11 +192,11 @@ ggsave(introgression_scan_baltic,
 
 # Plots in Supplementary Figure 11 ####
 # Load ChiSquare Test Results #
-load("~/Documents/Postdoc/Project_Herring/2024-04-18-Vision/allele_frequencies/baltic_spring_vs_atlantic_spring_han_pops_chiseq.output.RData")
+load("5.processing_pool_seq_data/chisquare_results/baltic_spring_vs_atlantic_spring_han_pops_chiseq.output.RData")
 baltic_spring_vs_atlantic_spring_chiseq$Log10 <- -log10(baltic_spring_vs_atlantic_spring_chiseq$chisq_p)
 
 # Autumn:
-load("~/Documents/Postdoc/Project_Herring/2024-04-18-Vision/allele_frequencies/baltic_autumn_vs_atlantic_autumn_han_pops_chiseq.output.RData")
+load("5.processing_pool_seq_data/chisquare_results/baltic_autumn_vs_atlantic_autumn_han_pops_chiseq.output.RData")
 baltic_autumn_vs_atlantic_autumn_chiseq$Log10 <- -log10(baltic_autumn_vs_atlantic_autumn_chiseq$chisq_p)
 
 padding <- 1
@@ -471,7 +473,7 @@ plots1.6 <- gridExtra::grid.arrange(grobs = lapply(list_plots[c(1:6)], "+", marg
 plots7.9 <- gridExtra::grid.arrange(grobs = lapply(list_plots[c(7:9)], "+", margin), ncol=2)
 
 
-directory="~/Documents/Postdoc/Project_Herring/Introgression/Pool_data/"
+directory="directory/"
 ggsave(plots1.6, file=paste0(directory,"figures/combined_daf_introgression_scan_intro_reg_1_to_6.pdf"),
        units="mm",
        height=200,

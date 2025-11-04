@@ -6,7 +6,7 @@ library(cowplot)
 library(gridExtra)
 library(ggsci)
 
-setwd("~/Dropbox/Mac/Documents/Postdoc/Project_Herring/Introgression/Manuscript/Figshare/2.population_structure/admixture/results")
+setwd("Manuscript/Figshare/2.population_structure/admixture/results")
 
 
 # run_admixture_plots <- function(indTable_file, base_pattern, out_pdf="admixture_plots.pdf") {

@@ -1,7 +1,9 @@
-setwd("~/Dropbox/Mac (2)/Documents/Postdoc/Project_Herring/SEC16B/PAML/")
+# This script prepares the SEC16B alignments for PAML analysis
+# And it also analysis the PAML results
+
+setwd("Baltic_herr_introgression/11.PAML/")
 
 library(ape)
-
 
 #Rainbow trout
 onc_mykiss_cds<-read.FASTA("Oncorhynchus_mykiss_sec16b_202_CDS.fa",type="DNA")

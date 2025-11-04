@@ -4,7 +4,7 @@
 # This code requires several input files and code which are available in this repository or on Figshare
 
 
-setwd("~/Documents/Postdoc/Project_Herring/Introgression/Manuscript/Figshare/")
+setwd("Manuscript/Figshare/")
 
 #save.image("4.introgression_scan/intermediate_files/introgression_scan_2023-11-20.RData")
 load("4.introgression_scan/intermediate_files/introgression_scan_2023-11-20.RData")

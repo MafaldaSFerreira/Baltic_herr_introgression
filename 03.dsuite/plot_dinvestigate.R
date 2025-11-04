@@ -2,7 +2,7 @@
 # Results in Supplementary Materials of the Baltic herring introgression paper
 # Supplementary Figure 10
 
-setwd("~/Documents/Postdoc/Project_Herring/Introgression/Manuscript/Figshare/")
+setwd("Manuscript/Figshare/")
 
 # Libraries ####
 library(tidyverse)

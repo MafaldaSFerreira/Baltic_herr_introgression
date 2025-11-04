@@ -10,7 +10,7 @@ library(viridis)
 library(biomaRt)
 
 # STWD ####
-setwd("~/Documents/Postdoc/Project_Herring/Introgression/Manuscript/Figshare/2.population_structure/PCA")
+setwd("Manuscript/Figshare/2.population_structure/PCA")
 
 
 # I asked chat to simplify the code:

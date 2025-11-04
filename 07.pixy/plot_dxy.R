@@ -4,7 +4,7 @@ library(biomaRt)
 library(gridExtra)
 library(GenomicRanges)
 
-setwd("~/Documents/Postdoc/Project_Herring/Introgression/Manuscript/Figshare/")
+setwd("Manuscript/Figshare/")
 # Whole genome plots Supplementary Figure 9 ####
 # Overlaps with Introgression Regions.
 
