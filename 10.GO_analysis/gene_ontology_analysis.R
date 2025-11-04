@@ -1,24 +1,29 @@
-if (!requireNamespace("biomaRt", quietly = TRUE)) {
-  install.packages("BiocManager")
-  BiocManager::install("biomaRt")
-}
+# R script to conduct gene ontology enrichment analysis with the set of genes that are
+# introgressed in Baltic herring
+
+
+#if (!requireNamespace("biomaRt", quietly = TRUE)) {
+#  install.packages("BiocManager")
+#  BiocManager::install("biomaRt")
+#}
+
 library(biomaRt)
 library(GenomicRanges)
 library(dplyr)
 
+# Input files for this can be found on Github
+setwd("~/Baltic_herr_introgression")
 
 # Ensembl 109 archive (Feb 2023 release, Atlantic herring available)
 mart109 <- useMart("ensembl",
                    dataset = "charengus_gene_ensembl",
                    host = "https://feb2023.archive.ensembl.org")
 
-# Current Ensembl 114 (2025)
-mart114 <- useMart("ensembl",
-                   dataset = "charengus_gene_ensembl",
-                   host = "https://www.ensembl.org")
 
 # paste ids from my clipboard:
 old_ids <- read.delim(pipe("pbpaste"), header=F)
+
+old_ids <- read.table("10.GO_analysis/list_of_genes_introgressed_regions.txt")
 
 # get attributes:
 anno109 <- getBM(attributes = c("ensembl_gene_id", "external_gene_name",
@@ -26,47 +31,6 @@ anno109 <- getBM(attributes = c("ensembl_gene_id", "external_gene_name",
                  filters = "ensembl_gene_id",
                  values = old_ids,
                  mart = mart109)
-
-anno114 <- getBM(attributes = c("ensembl_gene_id", "external_gene_name",
-                                "chromosome_name", "start_position", "end_position"),
-                 mart = mart114)
-
-## ---- Step 2: Convert to GRanges ----
-gr109 <- GRanges(seqnames = anno109$chromosome_name,
-                 ranges   = IRanges(start = anno109$start_position,
-                                    end   = anno109$end_position),
-                 gene_id  = anno109$ensembl_gene_id,
-                 gene_name= anno109$external_gene_name)
-
-gr114 <- GRanges(seqnames = anno114$chromosome_name,
-                 ranges   = IRanges(start = anno114$start_position,
-                                    end   = anno114$end_position),
-                 gene_id  = anno114$ensembl_gene_id,
-                 gene_name= anno114$external_gene_name)
-
-## ---- Step 3: Allow fuzzy overlap (±1000 bp) ----
-gr109_ext <- resize(gr109, width = width(gr109) + 2000, fix = "center")
-
-hits <- findOverlaps(gr109_ext, gr114, ignore.strand = TRUE)
-
-## ---- Step 4: Build mapping table ----
-mapping <- data.frame(
-  ensembl_gene_id_109       = mcols(gr109)$gene_id[queryHits(hits)],
-  external_gene_name_109    = mcols(gr109)$gene_name[queryHits(hits)],
-  chr_109                   = as.character(seqnames(gr109))[queryHits(hits)],
-  start_109                 = start(gr109)[queryHits(hits)],
-  end_109                   = end(gr109)[queryHits(hits)],
-  
-  ensembl_gene_id_114       = mcols(gr114)$gene_id[subjectHits(hits)],
-  external_gene_name_114    = mcols(gr114)$gene_name[subjectHits(hits)],
-  chr_114                   = as.character(seqnames(gr114))[subjectHits(hits)],
-  start_114                 = start(gr114)[subjectHits(hits)],
-  end_114                   = end(gr114)[subjectHits(hits)]
-) %>%
-  distinct()
-
-
-
 
 # Gene ontology enrichment analysis
 install.packages("topGO")
@@ -110,55 +74,7 @@ GOdataBP <- new("topGOdata",
               allGenes = geneList,
               annot = annFUN.gene2GO,
               gene2GO = gene2GO)
-
-# # Run Fisher test
-# resultFisher <- runTest(GOdata, algorithm = "elim", statistic = "fisher")
-# resultKS <- runTest(GOdata, algorithm = "elim", statistic = "ks")
-# resultT <- runTest(GOdata, algorithm = "elim", statistic = "t")
-# 
-# resultFisherClassic <- runTest(GOdata, algorithm = "classic", statistic = "fisher")
-# resultKSClassic <- runTest(GOdata, algorithm = "classic", statistic = "ks")
-# resultTClassic <- runTest(GOdata, algorithm = "classic", statistic = "t")
-# 
-# # Extract top results
-# allRes <- GenTable(GOdata, Fisher = resultFisher, topNodes = 100)
-
-# GenTable(GOdata, Fisher = resultFisher, 
-#                               KS = resultKS,
-#                               RT = resultT,
-#                               topNodes = 20, orderBy="KS")
-# 
-# GenTable(GOdata, resultKS, topNodes=20)
-# GenTable(GOdata, resultFisher, topNodes = 20)
-# GenTable(GOdata, resultT, topNodes = 20)
-# 
-# allResKSClassic <- GenTable(GOdata, resultKSClassic, topNodes=20)
-# allResFisherClassic <- GenTable(GOdata, resultFisherClassic, topNodes = 20)
-# allResFisherClassic <- GenTable(GOdata, resultTClassic, topNodes = 20)
-
-
-# # Add FDR correction
-# allRes <- allRes %>%
-#   mutate(Fisher_FDR = p.adjust(Fisher, method = "BH")) %>%
-#   arrange(Fisher_FDR)
-# 
-# 
-# # Select top N enriched GO terms
-# topGO_terms <- allRes %>%
-#   filter(!is.na(Fisher_FDR)) %>%
-#   slice_min(Fisher_FDR, n = 20)  # top 20 terms
-# 
-# # Dotplot
-# ggplot(topGO_terms, aes(x = reorder(Term, -Fisher_FDR), y = -log10(Fisher_FDR), size = Significant)) +
-#   geom_point(color = "steelblue") +
-#   coord_flip() +  # horizontal labels
-#   labs(x = "GO Term",
-#        y = "-log10(FDR-adjusted p-value)",
-#        size = "Genes in your list",
-#        title = "Top Enriched GO Terms") +
-#   theme_minimal(base_size = 12)
-# 
-
++
 # Let's run for all types of GO terms:
 # -----------------------------
 # Function to run topGO for one ontology
@@ -188,13 +104,6 @@ run_topGO <- function(geneList, gene2GO, ontology, what_alg, what_stat){
 # -----------------------------
 # Run for BP, MF, CC
 # -----------------------------
-#topBP_classic_Fisher <- run_topGO(geneList, gene2GO, "BP", "classic", "fisher")
-#topMF_classic_Fisher <- run_topGO(geneList, gene2GO, "MF", "classic", "fisher")
-#topCC_classic_Fisher <- run_topGO(geneList, gene2GO, "CC", "classic", "fisher")
-
-#topBP_elim_Fisher <- run_topGO(geneList, gene2GO, "BP", "elim", "fisher")
-#topMF_elim_Fisher <- run_topGO(geneList, gene2GO, "MF", "elim", "fisher")
-#topCC_elim_Fisher <- run_topGO(geneList, gene2GO, "CC", "elim", "fisher")
 
 topBP_weight01_Fisher <- run_topGO(geneList, gene2GO, "BP", "weight01", "fisher")
 topMF_weight01_Fisher <- run_topGO(geneList, gene2GO, "MF", "weight01", "fisher")
@@ -213,14 +122,6 @@ go_all_terms_full <- go_all %>%
   left_join(full_terms, by=c("GO.ID"="go_id")) %>%
   mutate(Term_full = name_1006)
 
-
-# topBP_classic_ks <- run_topGO(geneList, gene2GO, "BP", "classic", "KS")
-# topMF_classic_ks <- run_topGO(geneList, gene2GO, "MF", "classic", "KS")
-# topCC_classic_ks <- run_topGO(geneList, gene2GO, "CC", "classic", "KS")
-# 
-# topBP_classic_t <- run_topGO(geneList, gene2GO, "BP", "classic", "t")
-# topMF_classic_t <- run_topGO(geneList, gene2GO, "MF", "classic", "t")
-# topCC_classic_t <- run_topGO(geneList, gene2GO, "CC", "classic", "t")
 
 # Select top N enriched GO terms
 topBP_to_plot_classic <- topBP_classic_Fisher %>%
@@ -349,4 +250,3 @@ go_all_terms_full_names_gene_names <- go_all_terms_full_names %>%
   ungroup() 
 
 write.csv(go_all_terms_full_names_gene_names, "results_topGO/GO_enrichment_all_results_weight01_fisher_with_names.csv", row.names = FALSE)
-

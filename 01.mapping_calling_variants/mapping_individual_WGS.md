@@ -463,3 +463,67 @@ bcftools index herring_sentieon_125ind_231031.newID.filter.setGT.noIndels.minDP3
 bcftools merge -O z -o herring_sentieon_125ind_231031.newID.filter.setGT.noIndels.minDP3.0maxDP3.0avg.miss0.2.biallelic.maf5.phased.sprat.vcf.gz herring_sentieon_125ind_231031.newID.filter.setGT.noIndels.minDP3.0maxDP3.0avg.miss0.2.biallelic.maf5.phased.vcf.gz /proj/snic2020-2-19/private/herring/users/mafalda/Introgression/outgroup/output_gatk_variant_call/m64077_201204_132418.HC30.ALLSITES.VF.setGT.noIndels.vcf.gz
 ~~~
 
+# Extract genotypes for heatmaps:
+
+
+run_genotypes_2023-11-23.sh
+~~~bash
+#!/bin/bash -l
+ 
+#SBATCH -A naiss2023-5-222
+#SBATCH -p core
+#SBATCH -n 1
+#SBATCH -M rackham
+#SBATCH -t 1:00:00
+#SBATCH --mail-user=amafaldasferreira@gmail.com
+#SBATCH --mail-type=ALL
+#SBATCH -J genotypes
+#SBATCH -e genotypes_%A_%a.err
+#SBATCH -o genotypes_%A_%a.out
+
+ml load bioinfo-tools bcftools/1.17
+
+
+WD="/proj/snic2020-2-19/private/herring/users/mafalda/Introgression/genotypes"
+INPUT_VCFS_DIR=${WD}"/data"
+REGIONS_DIR=${WD}"/regions"
+RESULTS=${WD}"/results"
+
+bcftools view --regions-file ${REGIONS_DIR}/scan1_v01_baltic_alt_ref_intro_regions_cov7_min50kb.modified.txt ${INPUT_VCFS_DIR}/herring_sentieon_125ind_231031.newID.filter.setGT.noIndels.minDP3.0maxDP3.0avg.miss0.2.biallelic.maf5.vcf.gz | bcftools query -f '%CHROM\t%POS\t[%GT\t]\n' > ${RESULTS}/herring_sentieon_125ind_231031.newID.filter.setGT.noIndels.minDP3.0maxDP3.0avg.miss0.2.biallelic.maf5.intro_reg.genotypes.2023-11-30.txt
+~~~
+
+
+Added a buffer of 20 kb around each introgression region:
+
+~~~
+cd /proj/snic2020-2-19/private/herring/users/mafalda/Introgression/genotypes/regions
+
+awk '{printf "%s\t%i\t%i\n", $1, $2-20000, $3+20000}' scan1_v01_baltic_alt_ref_intro_regions_cov7_min50kb.modified.txt > scan1_v01_baltic_alt_ref_intro_regions_cov7_min50kb.20kb_Buffer.modified.txt
+~~~
+
+run_genotypes_2023-11-23.sh
+~~~bash
+#!/bin/bash -l
+ 
+#SBATCH -A naiss2023-5-222
+#SBATCH -p core
+#SBATCH -n 1
+#SBATCH -M rackham
+#SBATCH -t 1:00:00
+#SBATCH --mail-user=amafaldasferreira@gmail.com
+#SBATCH --mail-type=ALL
+#SBATCH -J genotypes
+#SBATCH -e genotypes_%A_%a.err
+#SBATCH -o genotypes_%A_%a.out
+
+ml load bioinfo-tools bcftools/1.17
+
+
+WD="/proj/snic2020-2-19/private/herring/users/mafalda/Introgression/genotypes"
+INPUT_VCFS_DIR=${WD}"/data"
+REGIONS_DIR=${WD}"/regions"
+RESULTS=${WD}"/results"
+
+bcftools view --regions-file ${REGIONS_DIR}/scan1_v01_baltic_alt_ref_intro_regions_cov7_min50kb.20kb_Buffer.modified.txt ${INPUT_VCFS_DIR}/herring_sentieon_125ind_231031.newID.filter.setGT.noIndels.minDP3.0maxDP3.0avg.miss0.2.biallelic.maf5.vcf.gz | bcftools query -f '%CHROM\t%POS\t[%GT\t]\n' > ${RESULTS}/herring_sentieon_125ind_231031.newID.filter.setGT.noIndels.minDP3.0maxDP3.0avg.miss0.2.biallelic.maf5.intro_reg.genotypes.2025-08-06.txt
+~~~
+

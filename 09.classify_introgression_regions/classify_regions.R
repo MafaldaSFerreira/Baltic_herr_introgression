@@ -5,18 +5,18 @@
 # We start with dxy results from pixy which have been generated for group of Baltic spring-spawning homozygotes and White Sea. This is documented in step7.pixy/plot_dxy.R
 # We also use the xpEHH results as documented in step 8.
 
+library(tidyverse)
+library(GenomicRanges)
 
-## So I need to find how I classified the introgression regions based on dxy and xpEHH. Look at the code before.
-##
-setwd("/Users/mafaldaferreira/Dropbox/Mac/Documents/Postdoc/Project_Herring/Introgression/pixy/2025-10-18_results_homozygotes_maf5")
+# Input files can be found in Figshare:
+setwd("~/Documents/Postdoc/Project_Herring/Introgression/Manuscript/Figshare/7.pixy/results_homozygotes_dxy/")
 
 # First let's read the dxy files
-
 dxy_files<-list.files(pattern = "out_dxy")
 regions <- str_split_fixed(dxy_files, pattern="_", 3)[,c(1,2)]
 
 # Great, now, we probably need to read in the selection files.
-xpehh_results<-read.table("xpehh_group1+2.out", skip=1)
+xpehh_results<-read.table("../../8.xpehh/results_xpehh/xpehh_group1+2.out", skip=1)
 xpehh_results$CHROM<-str_split_fixed(xpehh_results$V2, "_", 2)[,1]
 xpehh_results$POS<-as.numeric(str_split_fixed(xpehh_results$V2, "_", 2)[,2])
 xpehh_results$V2<-NULL
@@ -149,6 +149,7 @@ introgressed_regions_good <- classified_regions %>% filter(Good==T )
 # 30 chr19  6360001  6380000 0.0005004860        0.001582253  0.005893937        0.001744877 -0.61915288     -2.9869484     TRUE TRUE
 
 # These are the results presented in Supplementary Table 7
+# Results are deposited on GitHub
 write.table(introgressed_regions_good, file = "introgressed_regions_good_2025-10-20.txt", col.names = T, row.names = F, quote = F)
 write.table(introgressed_regions_very_good, file = "introgressed_regions_very_good_2025-10-20.txt", col.names = T, row.names = F, quote = F)
 write.table(classified_regions, file = "classified_introgressed_regions_2025-10-20.txt", sep="\t", col.names = T, row.names = F, quote = F)
@@ -161,9 +162,7 @@ write.table(classified_regions, file = "classified_introgressed_regions_2025-10-
 # Let's read all the dxy files as a list:
 
 # Based on scan1_v01_baltic_alt_ref_summary_filter2
-setwd("~/Documents/Postdoc/Project_Herring/Introgression/pixy/2025-10-18_results_homozygotes_maf5/")
-
-intro_reg<-read.table(header=T,"~/Documents/Postdoc/Project_Herring/Introgression/introgression_scan/2023-11-16_analysis/introgression_regions/scan1_v01_baltic_alt_ref_intro_regions_cov7_min50kb.txt")
+intro_reg<-read.table(header=T,"../../4.introgression_scan/introgression_regions/scan1_v01_baltic_alt_ref_intro_regions_cov7_min50kb.txt")
 head(intro_reg)
 intro_reg_gr <- GRanges(seqnames=intro_reg$seqnames, IRanges(start=intro_reg$start, end=intro_reg$end))
 
