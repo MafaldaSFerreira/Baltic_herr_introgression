@@ -10,7 +10,7 @@ library(viridis)
 library(biomaRt)
 
 # STWD ####
-setwd("~/Documents/Postdoc/Project_Herring/Introgression/PCA/")
+setwd("~/Documents/Postdoc/Project_Herring/Introgression/Manuscript/Figshare/2.population_structure/PCA")
 
 
 # I asked chat to simplify the code:
@@ -23,7 +23,7 @@ library(gridExtra)
 # Sample info (used for all plots)
 #-------------------------
 indTable <- read.table(
-  "../admixture/sNMF_new/sampleinfo125.txt.ordered.mafalda",
+  "../plotting_files/sampleinfo125.txt.ordered.mafalda",
   header = TRUE, sep = "\t", comment.char = ""
 )
 

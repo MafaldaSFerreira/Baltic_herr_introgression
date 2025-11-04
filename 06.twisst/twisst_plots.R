@@ -2,20 +2,23 @@
 
 library(tidyverse)
 
-# Introgression regions ####
-intro_reg_collapsed<-read.table(header=T,"scan1_v01_baltic_alt_ref_intro_regions_cov7_min50kb.9regions.collapsed.txt")
 
-intro_reg<-read.table(header=T,"scan1_v01_baltic_alt_ref_intro_regions_cov7_min50kb.txt")
+# Introgression regions ####
+setwd("~/Documents/Postdoc/Project_Herring/Introgression/Manuscript/Figshare/")
+
+intro_reg_collapsed<-read.table(header=T,"4.introgression_scan/introgression_regions/scan1_v01_baltic_alt_ref_intro_regions_cov7_min50kb.9regions.collapsed.txt")
+
+intro_reg<-read.table(header=T,"4.introgression_scan/introgression_regions/scan1_v01_baltic_alt_ref_intro_regions_cov7_min50kb.txt")
 
 
 # TWISST: ####
 # Vancouver as outgroup
-weights <- read.table("/Users/mafaldaferreira/Library/CloudStorage/Dropbox/Mac (2)/Documents/Postdoc/Project_Herring/Introgression/Twisst/2023-12-04_twisst_new/output.weights_100_soft.csv", skip = 3, header=T)
-windows <- read.table("~/Dropbox/Mac (2)/Documents/Postdoc/Project_Herring/Introgression/Twisst/2023-12-04_twisst_new/output.phyml_bionj.w100_soft.data.tsv", header=T)
+weights <- read.table("6.twisst/outputs/output_outgroup_vancouver/output.weights_100_soft.csv", skip = 3, header=T)
+windows <- read.table("6.twisst/outputs/output_outgroup_vancouver/output.phyml_bionj.w100_soft.data.tsv", header=T)
 
 # Use sprat output:
-weights <- read.table("/Users/mafaldaferreira/Library/CloudStorage/Dropbox/Mac (2)/Documents/Postdoc/Project_Herring/Introgression/Twisst/2025-02-24_TwisstSprat/results/output.wg.phyml.w100.Mi10.weights.csv.gz", skip = 3, header=T)
-windows <- read.table("/Users/mafaldaferreira/Library/CloudStorage/Dropbox/Mac (2)/Documents/Postdoc/Project_Herring/Introgression/Twisst/2025-02-24_TwisstSprat/results/output.wg.phyml.w100.Mi10.data.tsv", header=T)
+weights <- read.table("6.twisst/outputs/output_outgroup_sprat/output.weights_100_soft.csv", skip = 3, header=T)
+windows <- read.table("6.twisst/outputs/output_outgroup_sprat/output.phyml_bionj.w100_soft.data.tsv", header=T)
 
 weights = weights / apply(weights, 1, sum)
 good_rows = which(is.na(apply(weights, 1, sum)) == F)
@@ -141,11 +144,11 @@ for(i in 1:nrow(intro_reg_collapsed)){
 
 # Outgroup sprat:
 all_sprat_plots <- grid.arrange(grobs = list_plots, ncol=2)
-ggsave(all_sprat_plots, filename="~/Documents/Postdoc/Project_Herring/Introgression/Twisst/2025-02-24_TwisstSprat/figures/all_intro_reg.twisst_OutSprat_Mi10_introg_reg_collapsed.pdf", units="mm", height = 150, width = 210)
+ggsave(all_sprat_plots, filename="figures/all_intro_reg.twisst_OutSprat_Mi10_introg_reg_collapsed.pdf", units="mm", height = 150, width = 210)
 
 # Outgroup pacific herring:
 all_pacific_plots <- grid.arrange(grobs = list_plots, ncol=2)
-ggsave(all_pacific_plots, filename="~/Documents/Postdoc/Project_Herring/Introgression/Twisst/2023-12-04_twisst_new/figures_2025-03-03/all_intro_reg.twisst_OutVancouver_introg_reg_collapsed.pdf", units="mm", height = 150, width = 210)
+ggsave(all_pacific_plots, filename="figures_2025-03-03/all_intro_reg.twisst_OutVancouver_introg_reg_collapsed.pdf", units="mm", height = 150, width = 210)
 
 
 # Figure 2 Zoom In into Chromosome 10 Regions ####
@@ -193,7 +196,7 @@ chr="chr10"
           axis.title.x = element_text(colour="black",size=6))
   
  
-ggsave(twisst_plot, filename="~/Documents/Postdoc/Project_Herring/Introgression/Twisst/2025-02-24_TwisstSprat/figures/chr10_overall.pdf", height = 40, width = 180, units = "mm")
+ggsave(twisst_plot, filename="figures/chr10_overall.pdf", height = 40, width = 180, units = "mm")
  
 twisst_df_long <- twisst_df %>% pivot_longer(col=c(7:9), names_to = "topology", values_to="weights")
 

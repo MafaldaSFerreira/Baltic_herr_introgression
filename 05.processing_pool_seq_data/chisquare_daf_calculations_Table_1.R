@@ -3,6 +3,7 @@
 
 # Input files for this can be found in FigShare
 
+setwd("~/Documents/Postdoc/Project_Herring/Introgression/Manuscript/Figshare/")
 
 # Recalculate DAFs with Han et al Populations and AD ####
 ## Populations From Han Et al #### 
@@ -40,7 +41,7 @@ Atlantic_Autumn_col <- c("HGS16_Orkney_NorthSea_Autumn",
 
 
 # READ ALLELE COUNTS ####
-AD<-read.table("60.Neff.AD", header=T)
+AD<-read.table("5.processing_pool_seq_data/inputs/60.Neff.AD", header=T)
 names <- names(AD)
 
 # Calculate allele frequencies
@@ -107,8 +108,8 @@ baltic_spring_vs_atlantic_spring_chiseq$freqpop1 <- baltic_spring_vs_atlantic_sp
 baltic_spring_vs_atlantic_spring_chiseq$freqpop2 <- baltic_spring_vs_atlantic_spring_chiseq$pop2_A / (baltic_spring_vs_atlantic_spring_chiseq$pop2_A + baltic_spring_vs_atlantic_spring_chiseq$pop2_D)
 baltic_spring_vs_atlantic_spring_chiseq$dAF <- abs(baltic_spring_vs_atlantic_spring_chiseq$freqpop1 - baltic_spring_vs_atlantic_spring_chiseq$freqpop2)
 baltic_spring_vs_atlantic_spring_chiseq$SNP<-paste0(baltic_spring_vs_atlantic_spring_chiseq$CHROM,"_", baltic_spring_vs_atlantic_spring_chiseq$POS)
-save(baltic_spring_vs_atlantic_spring_chiseq, file = "baltic_spring_vs_atlantic_spring_han_pops_chiseq.output.RData")
-load("baltic_spring_vs_atlantic_spring_han_pops_chiseq.output.RData")
+#save(baltic_spring_vs_atlantic_spring_chiseq, file = "5.processing_pool_seq_data/chisquare_results/baltic_spring_vs_atlantic_spring_han_pops_chiseq.output.RData")
+load("5.processing_pool_seq_data/chisquare_results/baltic_spring_vs_atlantic_spring_han_pops_chiseq.output.RData")
 
 ## Baltic Autumn vs Atlantic Autumn ####
 baltic_autumn_vs_atlantic_autumn_chiseq<-pop_allele_chisq(AD, Baltic_Autumn_col, Atlantic_Autumn_col)
@@ -116,8 +117,8 @@ baltic_autumn_vs_atlantic_autumn_chiseq$freqpop1 <- baltic_autumn_vs_atlantic_au
 baltic_autumn_vs_atlantic_autumn_chiseq$freqpop2 <- baltic_autumn_vs_atlantic_autumn_chiseq$pop2_A / (baltic_autumn_vs_atlantic_autumn_chiseq$pop2_A + baltic_autumn_vs_atlantic_autumn_chiseq$pop2_D)
 baltic_autumn_vs_atlantic_autumn_chiseq$dAF <- abs(baltic_autumn_vs_atlantic_autumn_chiseq$freqpop1 - baltic_autumn_vs_atlantic_autumn_chiseq$freqpop2)
 baltic_autumn_vs_atlantic_autumn_chiseq$SNP<-paste0(baltic_autumn_vs_atlantic_autumn_chiseq$CHROM,"_", baltic_autumn_vs_atlantic_autumn_chiseq$POS)
-save(baltic_autumn_vs_atlantic_autumn_chiseq, file = "baltic_autumn_vs_atlantic_autumn_han_pops_chiseq.output.RData")
-load("baltic_autumn_vs_atlantic_autumn_han_pops_chiseq.output.RData")
+#save(baltic_autumn_vs_atlantic_autumn_chiseq, file = "5.processing_pool_seq_data/chisquare_results/baltic_autumn_vs_atlantic_autumn_han_pops_chiseq.output.RData")
+load("5.processing_pool_seq_data/chisquare_results/baltic_autumn_vs_atlantic_autumn_han_pops_chiseq.output.RData")
 
 ## Baltic Spring vs White + Pechora Sea ####
 WhitePechora_sea_col <- names[grep("HWS[2345]", names)]
@@ -126,14 +127,14 @@ baltic_spring_vs_arctic_pacific_chiseq$freqpop1 <- baltic_spring_vs_arctic_pacif
 baltic_spring_vs_arctic_pacific_chiseq$freqpop2 <- baltic_spring_vs_arctic_pacific_chiseq$pop2_A / (baltic_spring_vs_arctic_pacific_chiseq$pop2_A + baltic_spring_vs_arctic_pacific_chiseq$pop2_D)
 baltic_spring_vs_arctic_pacific_chiseq$dAF <- abs(baltic_spring_vs_arctic_pacific_chiseq$freqpop1 - baltic_spring_vs_arctic_pacific_chiseq$freqpop2)
 baltic_spring_vs_arctic_pacific_chiseq$SNP<-paste0(baltic_spring_vs_arctic_pacific_chiseq$CHROM,"_", baltic_spring_vs_arctic_pacific_chiseq$POS)
-save(baltic_spring_vs_arctic_pacific_chiseq, file = "baltic_spring_vs_arctic_pacific_han_pops_chiseq.output.RData")
-load("baltic_spring_vs_arctic_pacific_han_pops_chiseq.output.RData")
+#save(baltic_spring_vs_arctic_pacific_chiseq, file = "5.processing_pool_seq_data/chisquare_results/baltic_spring_vs_arctic_pacific_han_pops_chiseq.output.RData")
+load("5.processing_pool_seq_data/chisquare_results/baltic_spring_vs_arctic_pacific_han_pops_chiseq.output.RData")
 
 
 # Table 1 ####
 # Find overlaps with the introgression regions:
 # Read in introgressed regions coordinates. Let's use non-collapsed for now
-intro_regions<-read.table(header=T, "~/Documents/Postdoc/Project_Herring/Introgression/introgression_scan/2023-11-16_analysis/introgression_regions/scan1_v01_baltic_alt_ref_intro_regions_cov7_min50kb.txt")
+intro_regions<-read.table(header=T, "4.introgression_scan/introgression_regions/scan1_v01_baltic_alt_ref_intro_regions_cov7_min50kb.txt")
 intro_reg_gr <- makeGRangesFromDataFrame(intro_regions)
 intro_regions$name <- paste0(intro_regions$seqnames, "_", intro_regions$start, "_", intro_regions$end)
 
@@ -197,8 +198,8 @@ results_ba_aa$results <- paste0(formatC(results_ba_aa$Position_Autumn, big.mark=
 
 View(cbind(results_bs_as$results, results_ba_aa$results))
 
-write.table(results_bs_as, "~/Documents/Postdoc/Repositories/Baltic_herr_introgression/5.processing_pool_seq_data/results/results_bs_as_table_1.txt", col.names = T, row.names = F, quote = F, sep = "\t")
-write.table(results_ba_aa, "~/Documents/Postdoc/Repositories/Baltic_herr_introgression/5.processing_pool_seq_data/results/results_ba_aa_table_1.txt", col.names = T, row.names = F, quote = F, sep = "\t")
+write.table(results_bs_as, "Baltic_herr_introgression/5.processing_pool_seq_data/results/results_bs_as_table_1.txt", col.names = T, row.names = F, quote = F, sep = "\t")
+write.table(results_ba_aa, "Baltic_herr_introgression/5.processing_pool_seq_data/results/results_ba_aa_table_1.txt", col.names = T, row.names = F, quote = F, sep = "\t")
 
 
 

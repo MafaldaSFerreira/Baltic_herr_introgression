@@ -2,6 +2,8 @@
 # Results in Supplementary Materials of the Baltic herring introgression paper
 # Supplementary Figure 10
 
+setwd("~/Documents/Postdoc/Project_Herring/Introgression/Manuscript/Figshare/")
+
 # Libraries ####
 library(tidyverse)
 library(cowplot)
@@ -10,10 +12,10 @@ library(cowplot)
 # Read introgression regions file
 # 2025-06-24
 # Use introgression regions scan1_v01_baltic_alt_ref_summary_filter2_cov7_gr_min50kb
-intro_reg<-read.table(header=T, "~/Documents/Postdoc/Project_Herring/Introgression/introgression_scan/introgression_regions/scan1_v01_baltic_alt_ref_intro_regions_cov7_min50kb.txt")
+intro_reg<-read.table(header=T, "4.introgression_scan/introgression_regions/scan1_v01_baltic_alt_ref_intro_regions_cov7_min50kb.txt")
 
 # fd values
-table_BalticSpring<-read.table("results_2023-11-30/results_2023-11-30_maf5_dinvestigate_sprat_outgroup/Canada_Spring_Baltic_Spring_WhiteSea_localFstats_run_1004_2023-12-01_w50_s25_50_25.txt", header=T)
+table_BalticSpring<-read.table("3.dsuite/results_dinvestigate/Canada_Spring_Baltic_Spring_WhiteSea_localFstats_run_1004_2023-12-01_w50_s25_50_25.txt", header=T)
 table_BalticSpring$mid <- (table_BalticSpring$windowEnd+table_BalticSpring$windowStart)/2
 
 table_BalticSpring
@@ -63,17 +65,11 @@ plot_fdM<-ggplot(table_BalticSpring, aes(x=type, y=f_dM, fill=type))+
         axis.title.y = element_text(size=6, color="black"),
         legend.position="none")
 
-ggsave(plot_fdM, file="results_2023-11-30/figures_maf5/scan1_intro_reg_vs_WG_boxplot_fdM_distibution.png", dpi=300,
-       width=8, height = 8)
-
-ggsave(plot_fdM, file="results_2023-11-30/figures_maf5/scan1_intro_reg_vs_WG_boxplot_fdM_distibution.pdf",
-       units="mm", width= 50, height = 50)
-
 signif(t.test(f_dM ~ type, data=table_BalticSpring, alternative="greater")$p.value,3)
 
 ## Let's read the Barents sea file:
 
-table_BarentSea<-read.table("results_2023-11-30/results_2023-11-30_maf5_dinvestigate_sprat_outgroup/Canada_Spring_Baltic_Spring_BarentSea_localFstats_run_1004_2023-12-01_w50_s25_50_25.txt", header=T)
+table_BarentSea<-read.table("3.dsuite/results_dinvestigate/Canada_Spring_Baltic_Spring_BarentSea_localFstats_run_1004_2023-12-01_w50_s25_50_25.txt", header=T)
 table_BarentSea$mid <- (table_BarentSea$windowEnd+table_BarentSea$windowStart)/2
 
 table_BarentSea

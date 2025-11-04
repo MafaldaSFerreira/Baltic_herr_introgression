@@ -4,16 +4,16 @@ library(biomaRt)
 library(gridExtra)
 library(GenomicRanges)
 
-
+setwd("~/Documents/Postdoc/Project_Herring/Introgression/Manuscript/Figshare/")
 # Whole genome plots Supplementary Figure 9 ####
 # Overlaps with Introgression Regions.
 
 ## Input files ####
 # dxy Maf 0.05
-table_dxy<- read.table("2313_2023-11-24.clusters_v03.wg.maf5.20kb.popgenpixy.out_dxy.txt", header=T)
+table_dxy<- read.table("7.pixy/results_WGS_dxy/2313_2023-11-24.clusters_v03.wg.maf5.20kb.popgenpixy.out_dxy.txt", header=T)
 
 # Introgression regions 
-intro_reg<-read.table(header=T, "~/Documents/Postdoc/Project_Herring/Introgression/introgression_scan/2023-11-16_analysis/introgression_regions/scan1_v01_baltic_alt_ref_intro_regions_cov7_min50kb.txt")
+intro_reg<-read.table(header=T, "4.introgression_scan/introgression_regions/scan1_v01_baltic_alt_ref_intro_regions_cov7_min50kb.txt")
 
 intro_reg_gr <- GRanges(seqnames=intro_reg$seqnames, IRanges(start=intro_reg$start, end=intro_reg$end))
 

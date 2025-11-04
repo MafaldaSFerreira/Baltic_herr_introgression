@@ -4,9 +4,11 @@
 # Libraries ####
 library(tidyverse) 
 
+setwd("~/Documents/Postdoc/Project_Herring/Introgression/Manuscript/Figshare/")
+
 # Sprat as outgroup maf 0.05 JK1000 ####
 # FOR PUBLICATION ####
-D_BBAA <- read.table("results_2023-11/all_vs_all_clusters_v03_maf5_JK1000_run_2209_2023-11-24_BBAA.txt", header=T, as.is=T)
+D_BBAA <- read.table("3.dsuite/results_dtrios/all_vs_all_clusters_v03_maf5_JK1000_run_2209_2023-11-24_BBAA.txt", header=T, as.is=T)
 
 D_BBAA$p.adjust <- p.adjust(D_BBAA$p.value, method="BH")
 D_BBAA_adjust <- D_BBAA %>% filter(p.adjust < 0.05)
@@ -58,5 +60,5 @@ Fstat <- D_BBAA_adjust %>% filter(P3 %in% c("Vancouver", "Japan", "WhiteSea", "B
 
 all_plots<-plot_grid(D_stat, Fstat, nrow=2, align = "h" )
 
-ggsave(all_plots, filename = "figures_2023-11/Dstat_f4.ratio_maf5_JK1000_run_2209_2023-11-24.pdf", units = "mm", width = 78, height = 80)
+ggsave(all_plots, filename = "figures_dtrios/Dstat_f4.ratio_maf5_JK1000_run_2209_2023-11-24.pdf", units = "mm", width = 78, height = 80)
 

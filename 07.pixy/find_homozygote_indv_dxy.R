@@ -6,13 +6,13 @@ library(stringr)
 library(tidyverse)
 
 # load the data ####
-setwd("~/Documents/Postdoc/Project_Herring/Introgression/pixy/scan1_homoz_support_indvs/")
+setwd("~/Documents/Postdoc/Project_Herring/Introgression/Manuscript/Figshare/")
 
-load(file = "scan1_v01_baltic_alt_ref_summary_filter2.Rdata")
+load(file = "4.introgression_scan/intermediate_files/scan1_v01_baltic_alt_ref_summary_filter2.Rdata")
 
 # load introgressed regions ####
 
-intro_reg<-read.table(header=T, "scan1_v01_baltic_alt_ref_intro_regions_cov7_min50kb.txt")
+intro_reg<-read.table(header=T, "4.introgression_scan/introgression_regions/scan1_v01_baltic_alt_ref_intro_regions_cov7_min50kb.txt")
 
 ## Conver to list ####
 scan1_v01_baltic_alt_ref_summary_filter2_cov7<-scan1_v01_baltic_alt_ref_summary_filter2$cov[scan1_v01_baltic_alt_ref_summary_filter2$cov[, "cov"] > 7,]

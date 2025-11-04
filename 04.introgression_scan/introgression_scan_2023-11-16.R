@@ -4,52 +4,46 @@
 # This code requires several input files and code which are available in this repository or on Figshare
 
 
-setwd("~/Dropbox/Mac (2)/Documents/Postdoc/Project_Herring/Introgression/introgression_scan/2023-11-16_analysis/") 
+setwd("~/Documents/Postdoc/Project_Herring/Introgression/Manuscript/Figshare/")
 
-save.image("~/Dropbox/Mac/Documents/Postdoc/Project_Herring/Introgression/introgression_scan/2023-11-16_analysis/intermediate_files/introgression_scan_2023-11-20.RData")
-load("~/Documents/Postdoc/Project_Herring/Introgression/introgression_scan/2023-11-16_analysis/intermediate_files/introgression_scan_2023-11-20.RData")
+#save.image("4.introgression_scan/intermediate_files/introgression_scan_2023-11-20.RData")
+load("4.introgression_scan/intermediate_files/introgression_scan_2023-11-20.RData")
 
 # Necessary packages ####
-install.packages("diptest")
-install.packages("stringdist")
-install.packages("../../../../Repositories/herring_introgression/introgression_scan/HaploDistScan_0.2.tar.gz", dependencies = T)
+# install.packages("diptest")
+# install.packages("stringdist")
+# install.packages("Baltic_herr_introgression/04.introgression_scan/introgression_scan/HaploDistScan_0.2.tar.gz", dependencies = T)
+#BiocManager::install("GenomicRanges")
+#BiocManager::install("GenomicFeatures")
+#BiocManager::install("biomaRt")
 
 # Load libraries ####
 require(stringdist)
 require(HaploDistScan)
-#BiocManager::install("GenomicRanges")
 require(GenomicRanges)
-#BiocManager::install("GenomicFeatures")
 require(GenomicFeatures)
-require(Gviz)
 require(tidyverse)
-#BiocManager::install("biomaRt")
 require(biomaRt)
-#BiocManager::install("plyranges")
-library(plyranges)
 
 # Load the Chromosome sizes ####
-Ch_v2.0.2_sizes <- read.table("Ch_v2.0.2.sizes", sep = "\t", stringsAsFactors = F, header = F)
+Ch_v2.0.2_sizes <- read.table("4.introgression_scan/inputs/Ch_v2.0.2.sizes", sep = "\t", stringsAsFactors = F, header = F)
 names(Ch_v2.0.2_sizes) <- c("name", "size")
 Ch_v2.0.2_sizes[,"offset"] <- c(0, cumsum(Ch_v2.0.2_sizes[,"size"])[-length(Ch_v2.0.2_sizes[,"size"])])
 Ch_v2.0.2_sizes[,"col"] <- c("grey30", "grey70")[(1:length(Ch_v2.0.2_sizes$name) %% 2) + 1]
 
 # Load data:
-#herring_125 <- generate_geno_df("herring_sentieon_125ind_231031.newID.filter.setGT.noIndels.minDP3.0maxDP3.0avg.miss0.2.biallelic.maf5_GT.txt")
-#save(herring_125, file="intermediate_files//herring_125.RData")
-load(file="intermediate_files/herring_125.RData")
+herring_125 <- generate_geno_df("4.introgression_scan/inputs/herring_sentieon_125ind_231031.newID.filter.setGT.noIndels.minDP3.0maxDP3.0avg.miss0.2.biallelic.maf5_GT.txt")
+#save(herring_125, file="4.introgression_scan/intermediate_files//herring_125.RData")
+load(file="4.introgression_scan/intermediate_files/herring_125.RData")
 
 # Load sample list:
 # I modified this file so that we have the correct names based on sample_metadata_20230714
-sample_list<-read.table("herring_sentieon_125ind_231031.newID.filter.setGT.noIndels.minDP3.0maxDP3.0avg.miss0.2.biallelic.maf5_sample.txt")
-
+sample_list<-read.table("4.introgression_scan/inputs/herring_sentieon_125ind_231031.newID.filter.setGT.noIndels.minDP3.0maxDP3.0avg.miss0.2.biallelic.maf5_sample.txt")
 haplotypes_list<-paste0(rep(sample_list$V1,each=2),"_",c(1,2))
-
 herring_125$sample_list<-haplotypes_list
 
 # windows
 h125_20k_w <- construct_window_annotation(herring_125$geno, interval = 2e4)
-
 
 # ---------------------------------------- #
 # SCAN1_V01_BALTIC_SPRING: Parent 1: NSSH_Norway and Canada Atlantic Spring; Parent 2: White sea + Pechora; Target: Baltic Spring ####
@@ -67,25 +61,29 @@ length(c(herring_125$sample_list[grep(target_group, herring_125$sample_list)],
          herring_125$sample_list[grep(ref_2_group, herring_125$sample_list)]))
 
 scan1_v01_baltic_v_subarctic_dist_alt_ref_20k_df <- introgression_contrast(target= target_group, ref_1 = ref_1_group, ref_2 = ref_2_group, w_df=h125_20k_w, sample_list=herring_125$sample_list, geno=herring_125$geno)
-#save(scan1_v01_baltic_v_subarctic_dist_alt_ref_20k_df, file = "intermediate_files/scan1_v01_baltic_v_subarctic_dist_alt_ref_20k_df.Rdata")
-#load("intermediate_files/scan1_v01_baltic_v_subarctic_dist_alt_ref_20k_df.Rdata")
+#save(scan1_v01_baltic_v_subarctic_dist_alt_ref_20k_df, file = "4.introgression_scan/intermediate_files/scan1_v01_baltic_v_subarctic_dist_alt_ref_20k_df.Rdata")
+#load("4.introgression_scan/intermediate_files/scan1_v01_baltic_v_subarctic_dist_alt_ref_20k_df.Rdata")
 scan1_v01_baltic_v_subarctic_alt_ref_diff_SNP_count_vec <- rowSums(scan1_v01_baltic_v_subarctic_dist_alt_ref_20k_df[,6:ncol(scan1_v01_baltic_v_subarctic_dist_alt_ref_20k_df)])/length(6:ncol(scan1_v01_baltic_v_subarctic_dist_alt_ref_20k_df))*2
 
 # Using min_diff 20 and snp_cutoff 50
-scan1_v01_baltic_v_subarctic_alt_ref_intro_filter2 <- introgression_plot_v3(scan1_v01_baltic_v_subarctic_dist_alt_ref_20k_df, sample_list=herring_125$sample_list, snp_numbers=scan1_v01_baltic_v_subarctic_alt_ref_diff_SNP_count_vec, pdf_file="~/Documents/Postdoc/Project_Herring/Introgression/introgression_scan/2023-11-16_analysis/figures/scan1_v01_baltic_v_subarctic_alt_ref_min_diff20_snp_cutoff50.pdf", min_diff = 20, snp_cutoff = 50, assoc_tresh = 8, assoc_dir = "up",  target_re ="B[MF][0-9]|F[0-9]_HastKar")
-scan1_v01_baltic_v_subarctic_alt_ref_intro_20k_lists_filter2 <- complile_intro_lists(intr_obj = scan1_v01_baltic_v_subarctic_alt_ref_intro_filter2, win_df = h125_20k_w, fuse_thresh = 5e4, assoc_t = 8)
-scan1_v01_baltic_alt_ref_summary_filter2 <- summarize_intro(intro_lists = scan1_v01_baltic_v_subarctic_alt_ref_intro_20k_lists_filter2, plot_dir = "~/Documents/Postdoc/Project_Herring/Introgression/introgression_scan/2023-11-16_analysis/figures/scan1_v01_baltic_summary_regions_filter2/")
-save(scan1_v01_baltic_v_subarctic_alt_ref_intro_20k_lists_filter2, file = "intermediate_files/scan1_v01_baltic_v_subarctic_alt_ref_intro_20k_lists_filter2.Rdata")
-save(scan1_v01_baltic_alt_ref_summary_filter2, file = "intermediate_files/scan1_v01_baltic_alt_ref_summary_filter2.Rdata")
+scan1_v01_baltic_v_subarctic_alt_ref_intro_filter2 <- introgression_plot_v3(scan1_v01_baltic_v_subarctic_dist_alt_ref_20k_df, 
+                                                                            sample_list=herring_125$sample_list, 
+                                                                            snp_numbers=scan1_v01_baltic_v_subarctic_alt_ref_diff_SNP_count_vec, 
+                                                                            pdf_file="scan1_v01_baltic_v_subarctic_alt_ref_min_diff20_snp_cutoff50.pdf", 
+                                                                            min_diff = 20, snp_cutoff = 50, assoc_tresh = 8, assoc_dir = "up",  
+                                                                            target_re ="B[MF][0-9]|F[0-9]_HastKar")
 
-load(file = "intermediate_files/scan1_v01_baltic_v_subarctic_alt_ref_intro_20k_lists_filter2.Rdata")
-load(file = "intermediate_files/scan1_v01_baltic_alt_ref_summary_filter2.Rdata")
+scan1_v01_baltic_v_subarctic_alt_ref_intro_20k_lists_filter2 <- complile_intro_lists(intr_obj = scan1_v01_baltic_v_subarctic_alt_ref_intro_filter2, win_df = h125_20k_w, fuse_thresh = 5e4, assoc_t = 8)
+scan1_v01_baltic_alt_ref_summary_filter2 <- summarize_intro(intro_lists = scan1_v01_baltic_v_subarctic_alt_ref_intro_20k_lists_filter2, plot_dir = "outputs/scan1_v01_baltic_summary_regions_filter2/")
+save(scan1_v01_baltic_v_subarctic_alt_ref_intro_20k_lists_filter2, file = "4.introgression_scan/intermediate_files/scan1_v01_baltic_v_subarctic_alt_ref_intro_20k_lists_filter2.Rdata")
+save(scan1_v01_baltic_alt_ref_summary_filter2, file = "4.introgression_scan/intermediate_files/scan1_v01_baltic_alt_ref_summary_filter2.Rdata")
+
+#load(file = "4.introgression_scan/intermediate_files/scan1_v01_baltic_v_subarctic_alt_ref_intro_20k_lists_filter2.Rdata")
+#load(file = "4.introgression_scan/intermediate_files/scan1_v01_baltic_alt_ref_summary_filter2.Rdata")
 
 ## REDUCE RANGES ####
 scan1_v01_baltic_alt_ref_summary_filter2$rec_GR # this 99 ranges
-
 GenomicRanges::reduce(scan1_v01_baltic_alt_ref_summary_filter2$rec_GR) #this has 42 ranges
-
 GenomicRanges::reduce(scan1_v01_baltic_alt_ref_summary_filter2$rec_GR, min.gapwidth=100000) # 31 ranges
 
 # If we make coverage a bit higher. So like, 7 30% of total haplotypes:
@@ -113,11 +111,11 @@ sum(data.frame(scan1_v01_baltic_alt_ref_summary_filter2_cov7_gr_min50kb)$width)
 2080000/725670187*100 = 0.28 
 
 write.table(data.frame(scan1_v01_baltic_alt_ref_summary_filter2_cov7_gr_min50kb), 
-            file = "introgression_regions/scan1_v01_baltic_alt_ref_intro_regions_cov7_min50kb.txt",
+            file = "4.introgression_scan/introgression_regions/scan1_v01_baltic_alt_ref_intro_regions_cov7_min50kb.txt",
             col.names = T, row.names = F, sep = "\t", quote=F)
 
 write.table(data.frame(scan1_v01_baltic_alt_ref_summary_filter2_cov7_gr_min10kb), 
-            file = "introgression_regions/scan1_v01_baltic_alt_ref_intro_regions_cov7_min10kb.txt",
+            file = "4.introgression_scan/introgression_regions/scan1_v01_baltic_alt_ref_intro_regions_cov7_min10kb.txt",
             col.names = T, row.names = F, sep = "\t", quote=F)
 
 # Collapse regions (before this code was in "join_plotting.R":
@@ -128,12 +126,12 @@ intro_reg_collapsed[4,3]<-27560000
 intro_reg_collapsed[5,3]<-16240000
 intro_reg_collapsed[6,3]<-15360000
 
-write.table(intro_reg_collapsed, "introgression_regions/scan1_v01_baltic_alt_ref_intro_regions_cov7_min50kb.9regions.collapsed.txt")
+write.table(intro_reg_collapsed, "4.introgression_scan/introgression_regions/scan1_v01_baltic_alt_ref_intro_regions_cov7_min50kb.9regions.collapsed.txt")
 
 # Convert into a bed file and add a buffer (before this code was in "recomb_heatmaps.R")
 intro_reg_collapsed_bed<-data.frame(chrom=intro_reg_collapsed$seqnames, start=intro_reg_collapsed$start-1e6-1, end=intro_reg_collapsed$end+1e6)
 write.table(intro_reg_collapsed_bed, quote = F, col.names = T, row.names = F, sep = "\t",
-            file="introgression_regions/scan1_v01_baltic_alt_ref_intro_regions_cov7_min50kb.collapsed.1Mb.bed")
+            file="4.introgression_scan/introgression_regions/scan1_v01_baltic_alt_ref_intro_regions_cov7_min50kb.collapsed.1Mb.bed")
 
 
 
@@ -151,15 +149,15 @@ herring_125$sample_list[grep(ref_1_group, herring_125$sample_list)]
 herring_125$sample_list[grep(ref_2_group, herring_125$sample_list)]
 
 scan2_v01_baltic_v_subarctic_dist_alt_ref_20k_df <- introgression_contrast(target=target_group, ref_1 = ref_1_group, ref_2 = ref_2_group, w_df=h125_20k_w, sample_list=herring_125$sample_list, geno=herring_125$geno)
-#save(scan2_v01_baltic_v_subarctic_dist_alt_ref_20k_df, file = "intermediate_files/scan2_v01_baltic_v_subarctic_dist_alt_ref_20k_df.Rdata")
-#load("intermediate_files/scan2_v01_baltic_v_subarctic_dist_alt_ref_20k_df.Rdata")
+#save(scan2_v01_baltic_v_subarctic_dist_alt_ref_20k_df, file = "4.introgression_scan/intermediate_files/scan2_v01_baltic_v_subarctic_dist_alt_ref_20k_df.Rdata")
+#load("4.introgression_scan/intermediate_files/scan2_v01_baltic_v_subarctic_dist_alt_ref_20k_df.Rdata")
 scan2_v01_baltic_v_subarctic_alt_ref_diff_SNP_count_vec <- rowSums(scan2_v01_baltic_v_subarctic_dist_alt_ref_20k_df[,6:ncol(scan2_v01_baltic_v_subarctic_dist_alt_ref_20k_df)])/length(6:ncol(scan2_v01_baltic_v_subarctic_dist_alt_ref_20k_df))*2
 
-scan2_v01_baltic_v_subarctic_alt_ref_intro <- introgression_plot_v3(scan2_v01_baltic_v_subarctic_dist_alt_ref_20k_df, sample_list=herring_125$sample_list, snp_numbers=scan2_v01_baltic_v_subarctic_alt_ref_diff_SNP_count_vec, pdf_file="~/Documents/Postdoc/Project_Herring/Introgression/introgression_scan/2023-11-16_analysis/figures/scan2_v01_baltic_v_subarctic_alt_ref_min_diff20_snp_cutoff50.pdf", min_diff = 20, snp_cutoff = 50, assoc_tresh = 8, assoc_dir = "up",  target_re = target_group)
+scan2_v01_baltic_v_subarctic_alt_ref_intro <- introgression_plot_v3(scan2_v01_baltic_v_subarctic_dist_alt_ref_20k_df, sample_list=herring_125$sample_list, snp_numbers=scan2_v01_baltic_v_subarctic_alt_ref_diff_SNP_count_vec, pdf_file="outputs/scan2_v01_baltic_v_subarctic_alt_ref_min_diff20_snp_cutoff50.pdf", min_diff = 20, snp_cutoff = 50, assoc_tresh = 8, assoc_dir = "up",  target_re = target_group)
 scan2_v01_baltic_v_subarctic_alt_ref_intro_20k_lists <- complile_intro_lists(intr_obj = scan2_v01_baltic_v_subarctic_alt_ref_intro, win_df = h125_20k_w, fuse_thresh = 5e4, assoc_t = 8)
-scan2_v01_baltic_alt_ref_summary <- summarize_intro(intro_lists = scan2_v01_baltic_v_subarctic_alt_ref_intro_20k_lists, plot_dir = "~/Documents/Postdoc/Project_Herring/Introgression/introgression_scan/2023-11-16_analysis/figures/scan2_v01_baltic_summary_regions/")
-#save(scan2_v01_baltic_alt_ref_summary, file="intermediate_files/scan2_v01_baltic_alt_ref_summary.Rdata")
-load(file="intermediate_files/scan2_v01_baltic_alt_ref_summary.Rdata")
+scan2_v01_baltic_alt_ref_summary <- summarize_intro(intro_lists = scan2_v01_baltic_v_subarctic_alt_ref_intro_20k_lists, plot_dir = "outputs/scan2_v01_baltic_summary_regions/")
+#save(scan2_v01_baltic_alt_ref_summary, file="4.introgression_scan/intermediate_files/scan2_v01_baltic_alt_ref_summary.Rdata")
+load(file="4.introgression_scan/intermediate_files/scan2_v01_baltic_alt_ref_summary.Rdata")
 
 ## REDUCE REGIONS ####
 ## 2025-10-18
@@ -191,15 +189,15 @@ herring_125$sample_list[grep(ref_1_group, herring_125$sample_list)]
 herring_125$sample_list[grep(ref_2_group, herring_125$sample_list)]
 
 scan3_v01_UK_v_subarctic_dist_alt_ref_20k_df <- introgression_contrast(target=target_group, ref_1 = ref_1_group, ref_2 = ref_2_group, w_df=h125_20k_w, sample_list=herring_125$sample_list, geno=herring_125$geno)
-save(scan3_v01_UK_v_subarctic_dist_alt_ref_20k_df, file = "intermediate_files/scan3_v01_UK_v_subarctic_dist_alt_ref_20k_df.Rdata")
+save(scan3_v01_UK_v_subarctic_dist_alt_ref_20k_df, file = "4.introgression_scan/intermediate_files/scan3_v01_UK_v_subarctic_dist_alt_ref_20k_df.Rdata")
 scan3_v01_UK_v_subarctic_alt_ref_diff_SNP_count_vec <- rowSums(scan3_v01_UK_v_subarctic_dist_alt_ref_20k_df[,6:ncol(scan3_v01_UK_v_subarctic_dist_alt_ref_20k_df)])/length(6:ncol(scan3_v01_UK_v_subarctic_dist_alt_ref_20k_df))*2
 
-scan3_v01_UK_v_subarctic_alt_ref_intro <- introgression_plot_v3(scan3_v01_UK_v_subarctic_dist_alt_ref_20k_df, sample_list=herring_125$sample_list, snp_numbers=scan3_v01_UK_v_subarctic_alt_ref_diff_SNP_count_vec, pdf_file="~/Documents/Postdoc/Project_Herring/Introgression/introgression_scan/2023-11-16_analysis/figures/scan3_v01_UK_v_subarctic_alt_ref_min_diff20_snp_cutoff50.pdf", min_diff = 20, snp_cutoff = 50, assoc_tresh = 8, assoc_dir = "up",  target_re = target_group)
+scan3_v01_UK_v_subarctic_alt_ref_intro <- introgression_plot_v3(scan3_v01_UK_v_subarctic_dist_alt_ref_20k_df, sample_list=herring_125$sample_list, snp_numbers=scan3_v01_UK_v_subarctic_alt_ref_diff_SNP_count_vec, pdf_file="outputs/scan3_v01_UK_v_subarctic_alt_ref_min_diff20_snp_cutoff50.pdf", min_diff = 20, snp_cutoff = 50, assoc_tresh = 8, assoc_dir = "up",  target_re = target_group)
 scan3_v01_UK_v_subarctic_alt_ref_intro_20k_lists <- complile_intro_lists(intr_obj = scan3_v01_UK_v_subarctic_alt_ref_intro, win_df = h125_20k_w, fuse_thresh = 5e4, assoc_t = 8)
-scan3_v01_UK_alt_ref_summary <- summarize_intro(intro_lists = scan3_v01_UK_v_subarctic_alt_ref_intro_20k_lists, plot_dir = "~/Documents/Postdoc/Project_Herring/Introgression/introgression_scan/2023-11-16_analysis/figures/scan3_v01_UK_summary_regions/")
-save(scan3_v01_UK_alt_ref_summary, file="intermediate_files/scan3_v01_UK_alt_ref_summary.Rdata")
+scan3_v01_UK_alt_ref_summary <- summarize_intro(intro_lists = scan3_v01_UK_v_subarctic_alt_ref_intro_20k_lists, plot_dir = "outputs/scan3_v01_UK_summary_regions/")
+save(scan3_v01_UK_alt_ref_summary, file="4.introgression_scan/intermediate_files/scan3_v01_UK_alt_ref_summary.Rdata")
 
-load("intermediate_files/scan3_v01_UK_alt_ref_summary.Rdata")
+load("4.introgression_scan/intermediate_files/scan3_v01_UK_alt_ref_summary.Rdata")
 
 ## REDUCE REGIONS ####
 # 2025-06-19
@@ -232,14 +230,14 @@ herring_125$sample_list[grep(ref_1_group, herring_125$sample_list)]
 herring_125$sample_list[grep(ref_2_group, herring_125$sample_list)]
 
 scan4_v01_AtlAut_v_subarctic_dist_alt_ref_20k_df <- introgression_contrast(target=target_group, ref_1 = ref_1_group, ref_2 = ref_2_group, w_df=h125_20k_w, sample_list=herring_125$sample_list, geno=herring_125$geno)
-save(scan4_v01_AtlAut_v_subarctic_dist_alt_ref_20k_df, file = "intermediate_files/scan4_v01_AtlAut_v_subarctic_dist_alt_ref_20k_df.Rdata")
+save(scan4_v01_AtlAut_v_subarctic_dist_alt_ref_20k_df, file = "4.introgression_scan/intermediate_files/scan4_v01_AtlAut_v_subarctic_dist_alt_ref_20k_df.Rdata")
 scan4_v01_AtlAut_v_subarctic_alt_ref_diff_SNP_count_vec <- rowSums(scan4_v01_AtlAut_v_subarctic_dist_alt_ref_20k_df[,6:ncol(scan4_v01_AtlAut_v_subarctic_dist_alt_ref_20k_df)])/length(6:ncol(scan4_v01_AtlAut_v_subarctic_dist_alt_ref_20k_df))*2
 
-scan4_v01_AtlAut_v_subarctic_alt_ref_intro <- introgression_plot_v3(scan4_v01_AtlAut_v_subarctic_dist_alt_ref_20k_df, sample_list=herring_125$sample_list, snp_numbers=scan4_v01_AtlAut_v_subarctic_alt_ref_diff_SNP_count_vec, pdf_file="~/Documents/Postdoc/Project_Herring/Introgression/introgression_scan/2023-11-16_analysis/figures/scan4_v01_AtlAut_v_subarctic_alt_ref_min_diff20_snp_cutoff50.pdf", min_diff = 20, snp_cutoff = 50, assoc_tresh = 8, assoc_dir = "up",  target_re = target_group)
+scan4_v01_AtlAut_v_subarctic_alt_ref_intro <- introgression_plot_v3(scan4_v01_AtlAut_v_subarctic_dist_alt_ref_20k_df, sample_list=herring_125$sample_list, snp_numbers=scan4_v01_AtlAut_v_subarctic_alt_ref_diff_SNP_count_vec, pdf_file="outputs/scan4_v01_AtlAut_v_subarctic_alt_ref_min_diff20_snp_cutoff50.pdf", min_diff = 20, snp_cutoff = 50, assoc_tresh = 8, assoc_dir = "up",  target_re = target_group)
 scan4_v01_AtlAut_v_subarctic_alt_ref_intro_20k_lists <- complile_intro_lists(intr_obj = scan4_v01_AtlAut_v_subarctic_alt_ref_intro, win_df = h125_20k_w, fuse_thresh = 5e4, assoc_t = 8)
-scan4_v01_AtlAut_alt_ref_summary <- summarize_intro(intro_lists = scan4_v01_AtlAut_v_subarctic_alt_ref_intro_20k_lists, plot_dir = "~/Documents/Postdoc/Project_Herring/Introgression/introgression_scan/2023-11-16_analysis/figures/scan4_v01_AtlAut_summary_regions/")
-save(scan4_v01_AtlAut_alt_ref_summary, file="intermediate_files/scan4_v01_AtlAut_alt_ref_summary.Rdata")
-load("intermediate_files/scan4_v01_AtlAut_alt_ref_summary.Rdata")
+scan4_v01_AtlAut_alt_ref_summary <- summarize_intro(intro_lists = scan4_v01_AtlAut_v_subarctic_alt_ref_intro_20k_lists, plot_dir = "outputs/scan4_v01_AtlAut_summary_regions/")
+save(scan4_v01_AtlAut_alt_ref_summary, file="4.introgression_scan/intermediate_files/scan4_v01_AtlAut_alt_ref_summary.Rdata")
+load("4.introgression_scan/intermediate_files/scan4_v01_AtlAut_alt_ref_summary.Rdata")
 
 ## REDUCE REGIONS ####
 # 2025-06-19
@@ -271,17 +269,17 @@ herring_125$sample_list[grep(ref_1_group, herring_125$sample_list)]
 herring_125$sample_list[grep(ref_2_group, herring_125$sample_list)]
 
 scan7_v01_AtlSpring_v_subarctic_dist_alt_ref_20k_df <- introgression_contrast(target=target_group, ref_1 = ref_1_group, ref_2 = ref_2_group, w_df=h125_20k_w, sample_list=herring_125$sample_list, geno=herring_125$geno)
-save(scan7_v01_AtlSpring_v_subarctic_dist_alt_ref_20k_df, file = "intermediate_files/scan7_v01_AtlSpring_v_subarctic_dist_alt_ref_20k_df.Rdata")
+save(scan7_v01_AtlSpring_v_subarctic_dist_alt_ref_20k_df, file = "4.introgression_scan/intermediate_files/scan7_v01_AtlSpring_v_subarctic_dist_alt_ref_20k_df.Rdata")
 scan7_v01_AtlSpring_v_subarctic_alt_ref_diff_SNP_count_vec <- rowSums(scan7_v01_AtlSpring_v_subarctic_dist_alt_ref_20k_df[,6:ncol(scan7_v01_AtlSpring_v_subarctic_dist_alt_ref_20k_df)])/length(6:ncol(scan7_v01_AtlSpring_v_subarctic_dist_alt_ref_20k_df))*2
 
-scan7_v01_AtlSpring_v_subarctic_alt_ref_intro <- introgression_plot_v3(scan7_v01_AtlSpring_v_subarctic_dist_alt_ref_20k_df, sample_list=herring_125$sample_list, snp_numbers=scan7_v01_AtlSpring_v_subarctic_alt_ref_diff_SNP_count_vec, pdf_file="~/Documents/Postdoc/Project_Herring/Introgression/introgression_scan/2023-11-16_analysis/figures/scan7_v01_AtlSpring_v_subarctic_alt_ref_min_diff20_snp_cutoff50.pdf", min_diff = 20, snp_cutoff = 50, assoc_tresh = 8, assoc_dir = "up",  target_re = target_group)
+scan7_v01_AtlSpring_v_subarctic_alt_ref_intro <- introgression_plot_v3(scan7_v01_AtlSpring_v_subarctic_dist_alt_ref_20k_df, sample_list=herring_125$sample_list, snp_numbers=scan7_v01_AtlSpring_v_subarctic_alt_ref_diff_SNP_count_vec, pdf_file="outputs/scan7_v01_AtlSpring_v_subarctic_alt_ref_min_diff20_snp_cutoff50.pdf", min_diff = 20, snp_cutoff = 50, assoc_tresh = 8, assoc_dir = "up",  target_re = target_group)
 scan7_v01_AtlSpring_v_subarctic_alt_ref_intro_20k_lists <- complile_intro_lists(intr_obj = scan7_v01_AtlSpring_v_subarctic_alt_ref_intro, win_df = h125_20k_w, fuse_thresh = 5e4, assoc_t = 8)
-scan7_v01_AtlSpring_v_subarctic_alt_ref_summary <- summarize_intro(intro_lists = scan7_v01_AtlSpring_v_subarctic_alt_ref_intro_20k_lists, plot_dir = "~/Documents/Postdoc/Project_Herring/Introgression/introgression_scan/2023-11-16_analysis/figures/scan7_v01_AtlSpring_v_subarctic_alt_ref_summary_regions/")
-save(scan7_v01_AtlSpring_v_subarctic_dist_alt_ref_20k_df, file = "intermediate_files/scan7_v01_AtlSpring_v_subarctic_dist_alt_ref_20k_df.Rdata")
-save(scan7_v01_AtlSpring_v_subarctic_alt_ref_summary, file = "intermediate_files/scan7_v01_AtlSpring_v_subarctic_alt_ref_summary.Rdata")
+scan7_v01_AtlSpring_v_subarctic_alt_ref_summary <- summarize_intro(intro_lists = scan7_v01_AtlSpring_v_subarctic_alt_ref_intro_20k_lists, plot_dir = "outputs/scan7_v01_AtlSpring_v_subarctic_alt_ref_summary_regions/")
+save(scan7_v01_AtlSpring_v_subarctic_dist_alt_ref_20k_df, file = "4.introgression_scan/intermediate_files/scan7_v01_AtlSpring_v_subarctic_dist_alt_ref_20k_df.Rdata")
+save(scan7_v01_AtlSpring_v_subarctic_alt_ref_summary, file = "4.introgression_scan/intermediate_files/scan7_v01_AtlSpring_v_subarctic_alt_ref_summary.Rdata")
 
 ## REDUCE REGIONS ####
-load("intermediate_files/scan7_v01_AtlSpring_v_subarctic_alt_ref_summary.Rdata")
+load("4.introgression_scan/intermediate_files/scan7_v01_AtlSpring_v_subarctic_alt_ref_summary.Rdata")
 # 2025-06-19
 coverage=7
 scan7_v01_AtlSpring_v_subarctic_alt_ref_summary_cov7<-scan7_v01_AtlSpring_v_subarctic_alt_ref_summary$cov[scan7_v01_AtlSpring_v_subarctic_alt_ref_summary$cov[, "cov"] >= coverage,]
@@ -313,15 +311,15 @@ herring_125$sample_list[grep(ref_1_group, herring_125$sample_list)]
 herring_125$sample_list[grep(ref_2_group, herring_125$sample_list)]
 
 scan10_v01_NorthSea_v_subarctic_dist_alt_ref_20k_df <- introgression_contrast(target=target_group, ref_1 = ref_1_group, ref_2 = ref_2_group, w_df=h125_20k_w, sample_list=herring_125$sample_list, geno=herring_125$geno)
-save(scan10_v01_NorthSea_v_subarctic_dist_alt_ref_20k_df, file = "intermediate_files/scan10_v01_NorthSea_v_subarctic_dist_alt_ref_20k_df.Rdata")
+save(scan10_v01_NorthSea_v_subarctic_dist_alt_ref_20k_df, file = "4.introgression_scan/intermediate_files/scan10_v01_NorthSea_v_subarctic_dist_alt_ref_20k_df.Rdata")
 scan10_v01_NorthSea_v_subarctic_alt_ref_diff_SNP_count_vec <- rowSums(scan10_v01_NorthSea_v_subarctic_dist_alt_ref_20k_df[,6:ncol(scan10_v01_NorthSea_v_subarctic_dist_alt_ref_20k_df)])/length(6:ncol(scan10_v01_NorthSea_v_subarctic_dist_alt_ref_20k_df))*2
 
-scan10_v01_NorthSea_v_subarctic_alt_ref_intro <- introgression_plot_v3(scan10_v01_NorthSea_v_subarctic_dist_alt_ref_20k_df, sample_list=herring_125$sample_list, snp_numbers=scan10_v01_NorthSea_v_subarctic_alt_ref_diff_SNP_count_vec, pdf_file="~/Documents/Postdoc/Project_Herring/Introgression/introgression_scan/2023-11-16_analysis/figures/scan10_v01_NorthSea_v_subarctic_alt_ref_min_diff20_snp_cutoff50.pdf", min_diff = 20, snp_cutoff = 50, assoc_tresh = 8, assoc_dir = "up",  target_re = target_group)
+scan10_v01_NorthSea_v_subarctic_alt_ref_intro <- introgression_plot_v3(scan10_v01_NorthSea_v_subarctic_dist_alt_ref_20k_df, sample_list=herring_125$sample_list, snp_numbers=scan10_v01_NorthSea_v_subarctic_alt_ref_diff_SNP_count_vec, pdf_file="outputs/scan10_v01_NorthSea_v_subarctic_alt_ref_min_diff20_snp_cutoff50.pdf", min_diff = 20, snp_cutoff = 50, assoc_tresh = 8, assoc_dir = "up",  target_re = target_group)
 scan10_v01_NorthSea_v_subarctic_alt_ref_intro_20k_lists <- complile_intro_lists(intr_obj = scan10_v01_NorthSea_v_subarctic_alt_ref_intro, win_df = h125_20k_w, fuse_thresh = 5e4, assoc_t = 8)
-scan10_v01_NorthSea_alt_ref_summary <- summarize_intro(intro_lists = scan10_v01_NorthSea_v_subarctic_alt_ref_intro_20k_lists, plot_dir = "~/Documents/Postdoc/Project_Herring/Introgression/introgression_scan/2023-11-16_analysis/figures/scan10_v01_NorthSea_summary_regions/")
-save(scan10_v01_NorthSea_v_subarctic_dist_alt_ref_20k_df, file = "intermediate_files/scan10_v01_NorthSea_v_subarctic_dist_alt_ref_20k_df.Rdata")
-save(scan10_v01_NorthSea_alt_ref_summary, file = "intermediate_files/scan10_v01_NorthSea_alt_ref_summary.Rdata")
-load("intermediate_files/scan10_v01_NorthSea_alt_ref_summary.Rdata")
+scan10_v01_NorthSea_alt_ref_summary <- summarize_intro(intro_lists = scan10_v01_NorthSea_v_subarctic_alt_ref_intro_20k_lists, plot_dir = "outputs/scan10_v01_NorthSea_summary_regions/")
+save(scan10_v01_NorthSea_v_subarctic_dist_alt_ref_20k_df, file = "4.introgression_scan/intermediate_files/scan10_v01_NorthSea_v_subarctic_dist_alt_ref_20k_df.Rdata")
+save(scan10_v01_NorthSea_alt_ref_summary, file = "4.introgression_scan/intermediate_files/scan10_v01_NorthSea_alt_ref_summary.Rdata")
+load("4.introgression_scan/intermediate_files/scan10_v01_NorthSea_alt_ref_summary.Rdata")
 
 ## REDUCE REGIONS ####
 scan10_v01_NorthSea_alt_ref_summary$rec_GR # has Nothing genome range, so let's simply consider this one
@@ -509,7 +507,7 @@ scan1_match_gr<-GRanges(seqnames=scan1_match$chromosome_name,
 scan1_match_df <- data.frame(scan1_match_gr)
 write.table(scan1_match_df, file="introgression_regions_annotations/scan1_v01_baltic_alt_ref_summary_filter2_cov7_gr_min50kb.maxgap20K.txt", quote = F, col.names = T, row.names = F, sep = "\t")
 
-scan1_match_df<-read.table("~/Dropbox/Mac (2)/Documents/Postdoc/Project_Herring/Introgression/introgression_scan/2023-11-16_analysis/introgression_regions_annotations/scan1_v01_baltic_alt_ref_summary_filter2_cov7_gr_min50kb.maxgap20K.modified.txt", sep="\t", header=T, row.names=NULL)
+scan1_match_df<-read.table("4.introgression_scan/introgression_regions/scan1_v01_baltic_alt_ref_summary_filter2_cov7_gr_min50kb.maxgap20K.modified.txt", sep="\t", header=T, row.names=NULL)
 scan1_match_gr <- makeGRangesFromDataFrame(scan1_match_df)
 
 scan1_anno_overl <- findOverlaps(scan1_v01_baltic_alt_ref_summary_filter2_cov7_gr_min50kb, scan1_match_gr, maxgap = 2e4)  

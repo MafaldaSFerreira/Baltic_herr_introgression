@@ -8,12 +8,13 @@ library(data.table)
 # Set the working directory
 # Let's load the snpEFF annotations of SNPs based on the high coverage data:
 setwd("~/Documents/Postdoc/Project_Herring/Introgression/candidate_regions/snpEff_annotations")
+setwd("~/Documents/Postdoc/Project_Herring/Introgression/Manuscript/Figshare/")
 
 # Read in introgressed regions coordinates. Let's use non-collapsed for now
-intro_regions<-read.table(header=T, "~/Documents/Postdoc/Project_Herring/Introgression/introgression_scan/2023-11-16_analysis/introgression_regions/scan1_v01_baltic_alt_ref_intro_regions_cov7_min50kb.txt")
+intro_regions<-read.table(header=T, "4.introgression_scan/introgression_regions/scan1_v01_baltic_alt_ref_intro_regions_cov7_min50kb.txt")
 
 # Annotations #
-scan1_match_df<-read.table("~/Documents/Postdoc/Project_Herring/Introgression/introgression_scan/2023-11-16_analysis/introgression_regions_annotations/scan1_v01_baltic_alt_ref_summary_filter2_cov7_gr_min50kb.maxgap20K.modified.txt", sep="\t", header=T, row.names=NULL)
+scan1_match_df<-read.table("4.introgression_scan/introgression_regions/scan1_v01_baltic_alt_ref_summary_filter2_cov7_gr_min50kb.maxgap20K.modified.txt", sep="\t", header=T, row.names=NULL)
 scan1_match_df_gr <-GRanges(seqnames=scan1_match_df$seqnames, 
                             IRanges(start=scan1_match_df$start, end=scan1_match_df$end),
                             ensemble_gene_id=scan1_match_df$ensembl_gene_id, 
@@ -21,9 +22,9 @@ scan1_match_df_gr <-GRanges(seqnames=scan1_match_df$seqnames,
                             description=scan1_match_df$description_type)
 
 # ChiSquare
-load("~/Documents/Postdoc/Project_Herring/2024-04-18-Vision/allele_frequencies/baltic_spring_vs_arctic_pacific_han_pops_chiseq.output.RData")
-load("~/Documents/Postdoc/Project_Herring/2024-04-18-Vision/allele_frequencies/baltic_spring_vs_atlantic_spring_han_pops_chiseq.output.RData")
-load("~/Documents/Postdoc/Project_Herring/2024-04-18-Vision/allele_frequencies/baltic_autumn_vs_atlantic_autumn_han_pops_chiseq.output.RData")
+load("5.processing_pool_seq_data/chisquare_results/baltic_spring_vs_arctic_pacific_han_pops_chiseq.output.RData")
+load("5.processing_pool_seq_data/chisquare_results/baltic_spring_vs_atlantic_spring_han_pops_chiseq.output.RData")
+load("5.processing_pool_seq_data/chisquare_results/baltic_autumn_vs_atlantic_autumn_han_pops_chiseq.output.RData")
 
 # Calculate MAF for each contrast
 baltic_autumn_vs_atlantic_autumn_chiseq$maf<- with(baltic_autumn_vs_atlantic_autumn_chiseq, pmin(pop1_A + pop2_A, pop1_D + pop2_D) / 
@@ -351,8 +352,8 @@ MODIFIER_SNPs <- dedup_df_maf1_bi  %>%
   dplyr::select(seqnames, start, REF, ALT, GENE, TYPE, TYPE_2, gene_name,  
                 BS_AS_dAF, BS_AS_pval, BS_AP_dAF, BS_AP_pval, BA_AA_dAF, BA_AA_pval) 
 
-write.table(MODERATE_SNPs, quote=F, col.names = T, row.names=F, sep="\t", file = "results_candidate_mutations_2025-10-24/moderate_mutations_20kb_BS_AS_sig_BS_AP_nonsig.txt")
-write.table(HIGH_SNPs, quote=F, col.names = T, row.names=F, sep="\t", file = "results_candidate_mutations_2025-10-24/high_mutations_20kb_BS_AS_sig_BS_AP_nonsig.txt")
-write.table(LOW_SNPs, quote=F, col.names = T, row.names=F, sep="\t", file = "results_candidate_mutations_2025-10-24/low_mutations_20kb_BS_AS_sig_BS_AP_nonsig.txt")
-write.table(MODIFIER_SNPs, quote=F, col.names = T, row.names=F, sep="\t", file = "results_candidate_mutations_2025-10-24/modifier_mutations_20kb_BS_AS_sig_BS_AP_nonsig.txt")
+write.table(MODERATE_SNPs, quote=F, col.names = T, row.names=F, sep="\t", file = "results/moderate_mutations_20kb_BS_AS_sig_BS_AP_nonsig.txt")
+write.table(HIGH_SNPs, quote=F, col.names = T, row.names=F, sep="\t", file = "results/high_mutations_20kb_BS_AS_sig_BS_AP_nonsig.txt")
+write.table(LOW_SNPs, quote=F, col.names = T, row.names=F, sep="\t", file = "results/low_mutations_20kb_BS_AS_sig_BS_AP_nonsig.txt")
+write.table(MODIFIER_SNPs, quote=F, col.names = T, row.names=F, sep="\t", file = "results/modifier_mutations_20kb_BS_AS_sig_BS_AP_nonsig.txt")
 
