@@ -16,8 +16,8 @@ weights <- read.table("6.twisst/outputs/output_outgroup_vancouver/output.weights
 windows <- read.table("6.twisst/outputs/output_outgroup_vancouver/output.phyml_bionj.w100_soft.data.tsv", header=T)
 
 # Use sprat output:
-weights <- read.table("6.twisst/outputs/output_outgroup_sprat/output.weights_100_soft.csv", skip = 3, header=T)
-windows <- read.table("6.twisst/outputs/output_outgroup_sprat/output.phyml_bionj.w100_soft.data.tsv", header=T)
+weights <- read.table("6.twisst/outputs/output_outgroup_sprat/output.wg.phyml.w100.Mi10.weights.csv", skip = 3, header=T)
+windows <- read.table("6.twisst/outputs/output_outgroup_sprat/output.wg.phyml.w100.Mi10.data.tsv", header=T)
 
 weights = weights / apply(weights, 1, sum)
 good_rows = which(is.na(apply(weights, 1, sum)) == F)
