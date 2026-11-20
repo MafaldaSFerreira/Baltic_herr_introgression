@@ -9,7 +9,7 @@ library(tidyverse)
 library(GenomicRanges)
 
 # Input files can be found in Figshare:
-setwd("~/Documents/Postdoc/Project_Herring/Introgression/Manuscript/Figshare/7.pixy/results_homozygotes_dxy/")
+setwd("~/Documents/Postdoc/Project_Herring/Introgression/Manuscript/Figshare_20260909/7.pixy/results_homozygotes_dxy/")
 
 # First let's read the dxy files
 dxy_files<-list.files(pattern = "out_dxy")
@@ -209,11 +209,32 @@ dxy_tables_all[data.frame(overlaps_irvg)$subjectHits,]$type_irvg<-"Yes"
 # Remove windows with low number of sites:
 dxy_tables_all_filter5000 <- dxy_tables_all %>% filter(no_sites >=5000)
 
+# Take dxy values from each file for each focal region (so we don't have dxy values for the same
+# introgressed region)
+focal <- bind_rows(lapply(seq_along(dxy_tables_list), function(x) {
+  s <- as.numeric(str_split_fixed(regions[x, 2], "-", 2)[1, 1])
+  e <- as.numeric(str_split_fixed(regions[x, 2], "-", 2)[1, 2])
+  dxy_tables_list[[x]] %>%
+    filter(chromosome == regions[x, 1], window_pos_1 >= s, window_pos_2 <= e)
+})) %>%
+  filter(no_sites >= 5000) %>%
+  mutate(type = "Introgressed")
+
+background <- dxy_tables_all_filter5000 %>%
+  filter(type == "NotIntrogressed") %>%
+  group_by(chromosome, window_pos_1, window_pos_2, pop1, pop2) %>%
+  summarise(avg_dxy = mean(avg_dxy), .groups = "drop") %>%
+  mutate(type = "NotIntrogressed")
+
+dxy_tables_all_filter5000 <- bind_rows(focal, background) %>%
+  mutate(xy = paste0(pop1, "_", pop2))
+
+dxy_tables_all_filter5000 %>% count(xy, type)   # new n
+
 # Add comparison classification:
 dxy_tables_all_filter5000$xy <- paste0(dxy_tables_all_filter5000$pop1, "_", dxy_tables_all_filter5000$pop2)
 
 pcent_tmp_dxy_homo_1 <- quantile(tmp_dxy_homo_1$avg_dxy, 0.05)
-
 
 dxy_plot_introgressed_regions <- ggplot()+
   geom_boxplot(data=dxy_tables_all_filter5000, aes(y=avg_dxy, x=xy, color=type)) +
@@ -226,17 +247,8 @@ dxy_plot_introgressed_regions <- ggplot()+
         axis.title.y = element_text( size=6, color="black"),
         legend.position="none")
 
-ggsave(dxy_plot_introgressed_regions, filename="figures/dxy_plot_introgressed_regions_vs_background_three_populations_2025-10-20.pdf", 
+ggsave(dxy_plot_introgressed_regions, filename="~/Documents/Postdoc/Project_Herring/Introgression/Manuscript/Figures/Supplements/dxy_plot_introgressed_regions_vs_background_three_populations_2026-11-20.pdf", 
        units="mm", height=90, width= 90)
-
-ggplot()+
-  geom_boxplot(data=dxy_tables_all_filter5000, aes(y=avg_dxy, x=xy, color=type_irg)) +
-  theme_classic()+
-  theme(axis.title.x = element_blank(),
-        axis.text.x = element_text(size=6, color="black"),
-        axis.text.y = element_text(size=6, color="black"),
-        axis.title.y = element_text(size=6, color="black"))
-
 
 # Selection score within introgressed regions: 
 xpehh_results_gr <- GRanges(seqnames=xpehh_results$CHROM, IRanges(start=xpehh_results$POS, end=xpehh_results$POS)) 
@@ -265,9 +277,10 @@ std_selection <- ggplot()+
         axis.title = element_text(size=6, color="black"),
         legend.position = "none")
 
+library(gridExtra)
 all_plots <- grid.arrange(dxy_plot_introgressed_regions , std_selection)
 ## suplementary figure 4 ####
-ggsave(all_plots, filename="figures/dxy_and_selection_comparison_three_pop_comparison_2025-10-20.pdf", units="mm", height=90, width=90)
+#ggsave(all_plots, filename="figures/dxy_and_selection_comparison_three_pop_comparison_2025-10-20.pdf", units="mm", height=90, width=90)
 
 # 2026-08-05 #### 
 # Reviews Comment 6
@@ -319,11 +332,9 @@ wg_cs$type[subjectHits(findOverlaps(vg_gr, wg_cs_gr))] <- "Introgressed"
 
 wg_cs %>% filter(type=="Introgressed")
 
-wg_cs$introgressed_chr <- classified_regions[queryHits(findOverlaps(vg_gr, wg_cs_gr)),]$chr
-
 wg_cs %>%
   group_by(type) %>%
-  summarise(n = n(), mean_dxy = mean(avg_dxy))
+  summarise(n = n(), mean_dxy = mean(avg_dxy, na.rm=T))
 
 left_join(classified_regions, wg_cs, by=join_by("chr"=="chromosome", "start"=="window_pos_1", "end"=="window_pos_2"))
 
@@ -336,10 +347,10 @@ classified_regions_copy <- classified_regions
 
 classified_regions_copy$dxy_CS_vs_WS <- NA
 classified_regions_copy$pcent_dxy_CS_vs_WS <- NA
- 
+
 
 for(i in 1:nrow(regions)){
-
+  
   chr<-regions[i,1]
   s<-as.numeric(str_split_fixed(regions[i,2], pattern="-", 2)[1,1])
   e<-as.numeric(str_split_fixed(regions[i,2], pattern="-", 2)[1,2])
@@ -347,7 +358,7 @@ for(i in 1:nrow(regions)){
   
   print(c(chr, s, e))
   
- # Add dxy from Canada
+  # Add dxy from Canada
   tmp_dxy_3 <- wg %>%
     filter(no_sites >= 5000 & pop1 == "Canada_Spring" & pop2 == "WhiteSea")
   
@@ -365,7 +376,9 @@ names(classified_regions_copy)
 
 classified_regions_copy <- classified_regions_copy[,c(1:7,12,13,8:11)]
 
-write.table(classified_regions_copy, file = "classified_introgressed_regions_2026-08-05.txt", sep="\t", col.names = T, row.names = F, quote = F)
+#write.table(classified_regions_copy, file = "classified_introgressed_regions_2026-08-05.txt", sep="\t", col.names = T, row.names = F, quote = F)
+
+write.table(classified_regions_copy, file = "classified_introgressed_regions_2026-11-20.txt", sep="\t", col.names = T, row.names = F, quote = F)
 
 # Let's try to make a figure to display this: 
 
@@ -496,19 +509,30 @@ library(cowplot)
 
 # Depths from present, root = sprat divergence scaled to 1
 #   species split (Atl/Pac, ~3 My)  = 0.30
-#   introgression (~19 kya)         = 0.05
-#   Baltic founding (~8 kya)        = 0.01
+#   introgression (~19 kya)         = 0.10
+#   Baltic founding (~8 kya)        = 0.05
 trees <- list(
   "Genomic background" = "(Sprat:1.0,(Pacific:0.30,(Atlantic:0.01,Baltic:0.01):0.29):0.70);",
   "Pacific to Baltic"  = "(Sprat:1.0,(Atlantic:0.30,(Baltic:0.05,Pacific:0.05):0.25):0.70);",
   "Baltic to Pacific"  = "(Sprat:1.0,((Atlantic:0.01,Baltic:0.01):0.01,Pacific:0.02):0.98);"
 )
 
+# Depths from present, root = sprat divergence scaled to 1 (not to scale)
+#   species split (Atl/Pac, ~3 My)        = 0.30
+#   introgression (~19 kya)               = 0.10
+#   Baltic founding (~8 kya)              = 0.05
+#   Baltic to Pacific introgression       = 0.025 (younger than Baltic founding)
+trees <- list(
+  "Genomic background" = "(Sprat:1.0,(Pacific:0.30,(Atlantic:0.05,Baltic:0.05):0.25):0.70);",
+  "Pacific to Baltic"  = "(Sprat:1.0,(Atlantic:0.30,(Baltic:0.10,Pacific:0.10):0.20):0.70);",
+  "Baltic to Pacific"  = "(Sprat:1.0,(Atlantic:0.05,(Baltic:0.025,Pacific:0.025):0.025):0.95);"
+)
+
 tip_cols <- c(Sprat = "grey40", Atlantic = "#1F78B4",
               Baltic = "#6A3D9A", Pacific = "#D95F02")
 
 #Draw the titles inside the plot region with text() instead:
-  
+
 
 plot_tree_panel <- function() {
   op <- par(ps=6, mfrow = c(1, 3), mar = c(7, 1, 5, 1), xpd = NA)
@@ -536,4 +560,22 @@ all_plots <- grid.arrange(panel_a, dxy_plot_introgressed_regions , std_selection
 ## suplementary figure 4 ####
 ggsave(all_plots, filename="~/Dropbox/Mac/Documents/Postdoc/Project_Herring/Introgression/Manuscript/Figures/Supplements/dxy_and_selection_comparison_three_pop_comparison_2026-08-05.pdf", 
        units="mm", height=120, width=90, pointsize=6)
+ggsave(all_plots, filename="~/Dropbox/Mac/Documents/Postdoc/Project_Herring/Introgression/Manuscript/Figures/Supplements/dxy_and_selection_comparison_three_pop_comparison_2026-11-20.pdf", 
+       units="mm", height=120, width=90, pointsize=6)
+
+
+
+# b: boxes as plotted (rows per comparison and window type)
+panel_a_data %>% count(xy, type)
+
+# b: how many of those are distinct genomic windows
+bind_rows(
+  dxy_tables_all_filter5000 %>% dplyr::select(chromosome, window_pos_1, pop1, pop2, type),
+  wg_cs_plot %>% dplyr::select(chromosome, window_pos_1, pop1, pop2, type)
+) %>%
+  distinct() %>%
+  count(pop1, pop2, type)
+
+# c: SNPs per class
+table(xpehh_results$type)
 
