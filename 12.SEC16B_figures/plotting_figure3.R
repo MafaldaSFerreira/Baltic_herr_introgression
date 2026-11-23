@@ -2,7 +2,7 @@
 # All input files can be found either on GitHub or Figshare (if too big)
 
 setwd("Manuscript/Figshare/")
-setwd("~/Documents/Postdoc/Project_Herring/Introgression/Manuscript/Figshare/")
+setwd("~/Documents/Postdoc/Project_Herring/Introgression/Manuscript/Figshare_20260909/")
 
 library(ggrastr)
 library(tidyverse)
@@ -11,6 +11,9 @@ library(viridis)
 library(ggrepel)
 
 # INPUT FILES ####
+REPO <- "."
+FIGSHARE_ROOT <- "./Figshare"
+setwd(FIGSHARE_ROOT)
 
 ## TWISST ####
 
@@ -32,7 +35,8 @@ df<-mutate(df,
 
 load("5.processing_pool_seq_data/inputs/60.Neff.AF.2024-08-14.Rdata")
 names<-names(pops_freq_df)
-pool_order <- read.table("5.processing_pool_seq_data/plotting_files/pool_order")
+pool_order <- read.table(file.path(REPO, "00.revisions_relabeling/pool_order_20260813.txt"),
+                         header = FALSE, sep = "\t", stringsAsFactors = FALSE, comment.char = "")
 
 ## CHI-SQUARE ####
 load("5.processing_pool_seq_data/chisquare_results/baltic_spring_vs_baltic_autumn_han_pops_chiseq.output.RData")
@@ -109,20 +113,20 @@ tmp_pops_freq_df <- pops_freq_df %>%
 candidate_matrix <- intro_reg %>% filter(seqnames == c & start >= s-padding_mb & end <= e+ padding_mb)
 
 # Positive selection 
-plot_xpehh_2<-ggplot(tmp_xpehh)+
-  geom_rect(data=candidate_matrix,mapping=aes(xmin=start/1e6,xmax=end/1e6,ymin=6,ymax=-6),
-            fill="azure3",color=NA,alpha=0.5,inherit.aes = FALSE)+
-  geom_point(aes(x=POS/1e6, y=std_XPEHH, color=factor(abs(std_XPEHH) >= 2)), size=0.5)+
-  scale_color_manual(values=c("black", "red"))+
-  ylim(-6,6)+
-  xlab(paste0(chr," position (Mb)"))+
-  ylab("XPEHH score")+
-  theme_classic()+
-  theme(legend.position = "none",
-        axis.text.y = element_text(colour="black",size=6),
-        axis.text.x = element_text(colour="black",size=6),
-        axis.title.y = element_text(colour="black",size=6),
-        axis.title.x = element_blank())
+# plot_xpehh_2<-ggplot(tmp_xpehh)+
+#   geom_rect(data=candidate_matrix,mapping=aes(xmin=start/1e6,xmax=end/1e6,ymin=6,ymax=-6),
+#             fill="azure3",color=NA,alpha=0.5,inherit.aes = FALSE)+
+#   geom_point(aes(x=POS/1e6, y=std_XPEHH, color=factor(abs(std_XPEHH) >= 2)), size=0.5)+
+#   scale_color_manual(values=c("black", "red"))+
+#   ylim(-6,6)+
+#   xlab(paste0(chr," position (Mb)"))+
+#   ylab("XPEHH score")+
+#   theme_classic()+
+#   theme(legend.position = "none",
+#         axis.text.y = element_text(colour="black",size=6),
+#         axis.text.x = element_text(colour="black",size=6),
+#         axis.title.y = element_text(colour="black",size=6),
+#         axis.title.x = element_blank())
 
 # Chi-square
 # plot_csq_BS_AS <- ggplot(tmp_csq_BS_AS)+
@@ -142,136 +146,136 @@ plot_xpehh_2<-ggplot(tmp_xpehh)+
 #         axis.title.x = element_blank())
 
 
-# Plot dAF coloured by FST
-plot_csq_BS_AS <- ggplot(tmp_csq_BS_AS) +
-  geom_rect(data=candidate_matrix, mapping=aes(xmin=start/1e6, xmax=end/1e6, ymin=0, ymax=80),
-            fill="azure3", color=NA, alpha=0.5, inherit.aes=FALSE) +
-  # Grey points first so they go to the back
-  geom_point(data=tmp_csq_BS_AS %>% filter(is.na(FST)),
-             aes(x=POS/1e6, y=-log10(chisq_p)), 
-             color="darkgreen", size=0.5) +
-  # Coloured points on top
-  geom_point(data=tmp_csq_BS_AS %>% filter(!is.na(FST)),
-             aes(x=POS/1e6, y=-log10(chisq_p), color=FST), size=0.5) +
-  scale_color_viridis(option="magma", direction=-1,
-                      breaks=c(0, 0.1, 0.2, 0.25),
-                      labels=c("0", "0.1", "0.2", ">0.25"),
-                      limits=c(0, 0.25), oob=scales::squish,
-                      name=expression(F[ST])) +
-  theme_classic() +
-  xlim(s/1e6-padding, e/1e6+padding) +
-  xlab(paste0(chr, " position (Mb)")) +
-  ylab(expression(paste(-log[10], " (P value)"))) +
-  theme(legend.position="right",
-        legend.key.size=unit(0.3, "cm"),
-        legend.title=element_text(size=6),
-        legend.text=element_text(size=5),
-        axis.text.y=element_text(colour="black", size=6),
-        axis.text.x=element_text(colour="black", size=6),
-        axis.title.y=element_text(colour="black", size=6),
-        axis.title.x=element_blank())
+# # Plot dAF coloured by FST
+# plot_csq_BS_AS <- ggplot(tmp_csq_BS_AS) +
+#   geom_rect(data=candidate_matrix, mapping=aes(xmin=start/1e6, xmax=end/1e6, ymin=0, ymax=80),
+#             fill="azure3", color=NA, alpha=0.5, inherit.aes=FALSE) +
+#   # Grey points first so they go to the back
+#   geom_point(data=tmp_csq_BS_AS %>% filter(is.na(FST)),
+#              aes(x=POS/1e6, y=-log10(chisq_p)), 
+#              color="darkgreen", size=0.5) +
+#   # Coloured points on top
+#   geom_point(data=tmp_csq_BS_AS %>% filter(!is.na(FST)),
+#              aes(x=POS/1e6, y=-log10(chisq_p), color=FST), size=0.5) +
+#   scale_color_viridis(option="magma", direction=-1,
+#                       breaks=c(0, 0.1, 0.2, 0.25),
+#                       labels=c("0", "0.1", "0.2", ">0.25"),
+#                       limits=c(0, 0.25), oob=scales::squish,
+#                       name=expression(F[ST])) +
+#   theme_classic() +
+#   xlim(s/1e6-padding, e/1e6+padding) +
+#   xlab(paste0(chr, " position (Mb)")) +
+#   ylab(expression(paste(-log[10], " (P value)"))) +
+#   theme(legend.position="right",
+#         legend.key.size=unit(0.3, "cm"),
+#         legend.title=element_text(size=6),
+#         legend.text=element_text(size=5),
+#         axis.text.y=element_text(colour="black", size=6),
+#         axis.text.x=element_text(colour="black", size=6),
+#         axis.title.y=element_text(colour="black", size=6),
+#         axis.title.x=element_blank())
+# 
+# # Allele Frequency heat map
+# plot_pops_freq_df <- tmp_pops_freq_df %>% 
+#   ggplot()+
+#   rasterise(geom_tile(aes(y=factor(populations, level=pool_order$V1), x=POS/1e6, color=frequencies)), dpi=300) + 
+#   scale_color_viridis(direction = -1) +
+#   ylab("Populations")+
+#   xlab("Allele frequencies")+
+#   theme_classic()+
+#   theme(axis.text.y = element_blank(),
+#         axis.title.x = element_blank(),
+#         axis.text.x = element_text(size=6),
+#         axis.title.y = element_text(size=6),
+#         legend.position = "none")
 
-# Allele Frequency heat map
-plot_pops_freq_df <- tmp_pops_freq_df %>% 
-  ggplot()+
-  rasterise(geom_tile(aes(y=factor(populations, level=pool_order$V1), x=POS/1e6, color=frequencies)), dpi=300) + 
-  scale_color_viridis(direction = -1) +
-  ylab("Populations")+
-  xlab("Allele frequencies")+
-  theme_classic()+
-  theme(axis.text.y = element_blank(),
-        axis.title.x = element_blank(),
-        axis.text.x = element_text(size=6),
-        axis.title.y = element_text(size=6),
-        legend.position = "none")
-
-# Gene models
-numrow<-scan1_match_df %>% 
-  filter(seqnames==chr) %>% summarise(numrow=n())
-
-# yy for gene names
-yy<-rep(seq(1,4),(numrow$numrow/4))
-
-if(length(yy) < numrow$numrow) {
-  
-  extra<-numrow$numrow-length(yy)
-  
-  if (extra == 1) { yy <- c(yy, 1)
-  } else if (extra == 2) { yy <- c(yy, 1, 2)
-  } else if (extra == 3) { yy <- c(yy, 1, 2, 3)} 
-  
-  
-}
-
-gene_names<-scan1_match_df %>% 
-  filter(seqnames==chr) %>%
-  ggplot()+
-  geom_rect(data=candidate_matrix,mapping=aes(xmin=start/1e6,xmax=end/1e6,ymin=0,ymax=1),
-            fill="azure3",color=NA,alpha=0.5,inherit.aes = FALSE)+
-  geom_rect(aes(xmin=as.numeric(start)/1e6,xmax=as.numeric(end)/1e6
-                ,ymin=1,ymax=1.25),colour="black",fill="lightblue",linewidth=0.25)+
-  geom_text(aes(label=external_gene_name, x=start/1e6, y=2, angle=-45), size=2.5)+
-  ylim(0,3)+
-  xlim(s/1e6-padding, e/1e6+padding)+
-  xlab(paste0(chr," position (Mb)"))+
-  ylab("gene models")+
-  theme_classic()+
-  theme(axis.title = element_blank(),
-        axis.text = element_blank(),
-        axis.line = element_blank(),
-        axis.ticks = element_blank(),
-        text = element_text(size=6),
-        legend.position = "none")
-
-# Twisst plot
-twisst_plot <- df %>%
-  filter(scaffold==c) %>%
-  ggplot()+
-  geom_rect(data=candidate_matrix,mapping=aes(xmin=start/1e6,xmax=end/1e6,ymin=0,ymax=1),
-            fill="azure3",color=NA,alpha=0.5,inherit.aes = FALSE)+
-  geom_line(aes(x=mid/1000000,y=topo1),col="#882E72",size=0.5)+
-  geom_line(aes(x=mid/1000000,y=topo2),col="#E8601C",size=0.5)+
-  geom_line(aes(x=mid/1000000,y=topo3),col="#5289C7",size=0.5)+
-  xlim(s/1e6-padding, e/1e6+padding)+
-  ylab("topology support (%)") +
-  xlab(paste0(chr," position (Mb)"))+
-  theme_bw() +
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
-  theme(panel.border = element_blank()) +
-  theme(axis.line = element_line(colour = "black")) +
-  theme(axis.title.x = element_blank()) +
-  theme(legend.position = "none",
-        axis.text.y = element_text(colour="black",size=6),
-        axis.text.x = element_text(colour="black",size=6),
-        axis.title.y = element_text(colour="black",size=6),
-        axis.title.x = element_text(colour="black",size=6))
-
-# Add all plots together
-all_plots <- plot_grid(gene_names, plot_csq_BS_AS, plot_pops_freq_df, plot_xpehh_2, twisst_plot, nrow=5, align = "v")
+# # Gene models
+# numrow<-scan1_match_df %>% 
+#   filter(seqnames==chr) %>% summarise(numrow=n())
+# 
+# # yy for gene names
+# yy<-rep(seq(1,4),(numrow$numrow/4))
+# 
+# if(length(yy) < numrow$numrow) {
+#   
+#   extra<-numrow$numrow-length(yy)
+#   
+#   if (extra == 1) { yy <- c(yy, 1)
+#   } else if (extra == 2) { yy <- c(yy, 1, 2)
+#   } else if (extra == 3) { yy <- c(yy, 1, 2, 3)} 
+#   
+#   
+# }
+# 
+# gene_names<-scan1_match_df %>% 
+#   filter(seqnames==chr) %>%
+#   ggplot()+
+#   geom_rect(data=candidate_matrix,mapping=aes(xmin=start/1e6,xmax=end/1e6,ymin=0,ymax=1),
+#             fill="azure3",color=NA,alpha=0.5,inherit.aes = FALSE)+
+#   geom_rect(aes(xmin=as.numeric(start)/1e6,xmax=as.numeric(end)/1e6
+#                 ,ymin=1,ymax=1.25),colour="black",fill="lightblue",linewidth=0.25)+
+#   geom_text(aes(label=external_gene_name, x=start/1e6, y=2, angle=-45), size=2.5)+
+#   ylim(0,3)+
+#   xlim(s/1e6-padding, e/1e6+padding)+
+#   xlab(paste0(chr," position (Mb)"))+
+#   ylab("gene models")+
+#   theme_classic()+
+#   theme(axis.title = element_blank(),
+#         axis.text = element_blank(),
+#         axis.line = element_blank(),
+#         axis.ticks = element_blank(),
+#         text = element_text(size=6),
+#         legend.position = "none")
+# 
+# # Twisst plot
+# twisst_plot <- df %>%
+#   filter(scaffold==c) %>%
+#   ggplot()+
+#   geom_rect(data=candidate_matrix,mapping=aes(xmin=start/1e6,xmax=end/1e6,ymin=0,ymax=1),
+#             fill="azure3",color=NA,alpha=0.5,inherit.aes = FALSE)+
+#   geom_line(aes(x=mid/1000000,y=topo1),col="#882E72",size=0.5)+
+#   geom_line(aes(x=mid/1000000,y=topo2),col="#E8601C",size=0.5)+
+#   geom_line(aes(x=mid/1000000,y=topo3),col="#5289C7",size=0.5)+
+#   xlim(s/1e6-padding, e/1e6+padding)+
+#   ylab("topology support (%)") +
+#   xlab(paste0(chr," position (Mb)"))+
+#   theme_bw() +
+#   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+#   theme(panel.border = element_blank()) +
+#   theme(axis.line = element_line(colour = "black")) +
+#   theme(axis.title.x = element_blank()) +
+#   theme(legend.position = "none",
+#         axis.text.y = element_text(colour="black",size=6),
+#         axis.text.x = element_text(colour="black",size=6),
+#         axis.title.y = element_text(colour="black",size=6),
+#         axis.title.x = element_text(colour="black",size=6))
+# 
+# # Add all plots together
+# all_plots <- plot_grid(gene_names, plot_csq_BS_AS, plot_pops_freq_df, plot_xpehh_2, twisst_plot, nrow=5, align = "v")
 
 
 # Save plots
 #ggsave(all_plots, filename=paste0("sec16b_panel_2025-08-09.pdf"), height = 110, width = 100, units = "mm")
 #ggsave(all_plots, filename=paste0("sec16b_panel_2026-02-25.pdf"), height = 110, width = 100, units = "mm")
-ggsave(all_plots, filename=paste0("~/Documents/Postdoc/Project_Herring/Introgression/join_figures/figure3/sec16b_panel_2026-05-20.pdf"), height = 110, width = 100, units = "mm")
-ggsave(all_plots, filename=paste0("~/Documents/Postdoc/Project_Herring/Introgression/join_figures/figure3/sec16b_panel_2026-05-20_legend.pdf"), height = 110, width = 100, units = "mm")
+# ggsave(all_plots, filename=paste0("~/Documents/Postdoc/Project_Herring/Introgression/join_figures/figure3/sec16b_panel_2026-05-20.pdf"), height = 110, width = 100, units = "mm")
+# ggsave(all_plots, filename=paste0("~/Documents/Postdoc/Project_Herring/Introgression/join_figures/figure3/sec16b_panel_2026-05-20_legend.pdf"), height = 110, width = 100, units = "mm")
 
-# Plot heatmap independently and bigger
-plot_pops_freq_df <- tmp_pops_freq_df %>% 
-  ggplot()+
-  rasterise(geom_tile(aes(y=factor(populations, level=rev(pool_order$V1)), x=POS/1e6, color=frequencies)), dpi=300) + 
-  scale_color_viridis(direction = -1) +
-  ylab("Populations")+
-  xlab("Allele frequencies")+
-  theme_classic()+
-  theme(#axis.text.y = element_blank(),
-    axis.title.x = element_blank(),
-    axis.text.x = element_text(size=6),
-    axis.title.y = element_text(size=6),
-    legend.position = "none")
-
-ggsave(plot_pops_freq_df, filename=paste0("sec16b_AF_heatmap.pdf"), height = 50, width = 100, units = "mm")
-
+# # Plot heatmap independently and bigger
+# plot_pops_freq_df <- tmp_pops_freq_df %>% 
+#   ggplot()+
+#   rasterise(geom_tile(aes(y=factor(populations, level=rev(pool_order$V1)), x=POS/1e6, color=frequencies)), dpi=300) + 
+#   scale_color_viridis(direction = -1) +
+#   ylab("Populations")+
+#   xlab("Allele frequencies")+
+#   theme_classic()+
+#   theme(#axis.text.y = element_blank(),
+#     axis.title.x = element_blank(),
+#     axis.text.x = element_text(size=6),
+#     axis.title.y = element_text(size=6),
+#     legend.position = "none")
+# 
+# ggsave(plot_pops_freq_df, filename=paste0("sec16b_AF_heatmap.pdf"), height = 50, width = 100, units = "mm")
+# 
 
 # GENOTYPE HEAT MAP ####
 
@@ -317,22 +321,22 @@ sec16b_missense_Genos_freq_filter <- sec16b_missense_Genos_freq %>%
 indv_v03 <- indv_v02 %>% filter(!V1 %in% c("HWS61_Balsfjord_Atlantic", "HWS62_Balsfjord_Atlantic",
                                            "HWS63_Balsfjord_Atlantic", "HWS64_Balsfjord_Atlantic"))
 
-plot_genotypes <- sec16b_missense_Genos_freq_filter %>%
-  ggplot()+
-  rasterise(geom_tile(aes(y=factor(Individuals,level=indv_v03[,1]), x=as.character(POS), fill=Genotype)), dpi=300) + 
-  #scale_fill_manual(values=c("#1F78B4", "#CCCCCC", "#D95F02", "black"))+
-  scale_fill_viridis(discrete = TRUE) +
-  ylab("Populations")+
-  xlab("Genotypes")+
-  theme_classic()+
-  theme(
-    axis.title.x = element_blank(),
-    axis.text.y = element_text(size=6),
-    axis.text.x = element_text(size=6, angle=90, hjust=0.5, vjust=0.5),
-    axis.title.y = element_blank(),
-    legend.position = "none")
+# plot_genotypes <- sec16b_missense_Genos_freq_filter %>%
+#   ggplot()+
+#   rasterise(geom_tile(aes(y=factor(Individuals,level=indv_v03[,1]), x=as.character(POS), fill=Genotype)), dpi=300) + 
+#   #scale_fill_manual(values=c("#1F78B4", "#CCCCCC", "#D95F02", "black"))+
+#   scale_fill_viridis(discrete = TRUE) +
+#   ylab("Populations")+
+#   xlab("Genotypes")+
+#   theme_classic()+
+#   theme(
+#     axis.title.x = element_blank(),
+#     axis.text.y = element_text(size=6),
+#     axis.text.x = element_text(size=6, angle=90, hjust=0.5, vjust=0.5),
+#     axis.title.y = element_blank(),
+#     legend.position = "none")
 
-ggsave(plot_genotypes, filename="sec16B_genotypes_big_2025-09-13.pdf", height = 100, width = 190, units = "mm")
+# ggsave(plot_genotypes, filename="sec16B_genotypes_big_2025-09-13.pdf", height = 100, width = 190, units = "mm")
 
 
 # ============================================================================= #
@@ -379,7 +383,7 @@ pool_group_display <- c(
   "BalticSpring"                 = "Baltic Spring",
   "BalticAutum"                  = "Baltic Autumn",      # raw code really is "Autum"
   "BrackishSemilandlocked"       = "Semi-landlocked\nbrackish",
-  "BalticAtlanticTransitionZone" = "Baltic-Atlantic\ntransition",
+  "NEAtlanticTransition" = "Baltic-Atlantic\ntransition",
   "NEAtlanticFjords"             = "NE Atlantic fjords",
   "NEAtlantic"                   = "NE Atlantic",
   "NorthSea"                     = "North Sea",

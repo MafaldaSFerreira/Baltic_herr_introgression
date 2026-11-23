@@ -164,7 +164,7 @@ top_legend_bar <- ggplot(pool_order, aes(x = populations, y = 1, fill = clean_gr
 # ==========================================
 
 # Align both plots precisely by their vertical coordinate grids
-aligned_plots <- align_plots(top_legend_bar, main_heatmap, align = 'v', axis = 'lr')
+aligned_plots <- cowplot::align_plots(top_legend_bar, main_heatmap, align = 'v', axis = 'lr')
 
 # CHANGED: Increase rel_heights so the top section doesn't get squished
 final_composite_plot <- plot_grid(
@@ -176,7 +176,7 @@ final_composite_plot <- plot_grid(
 
 # Save the final masterpiece
 ggsave(plot = final_composite_plot,
-       filename = "supplementary_allele_freq_heatmap_segmented.pdf"  # saved to your R working directory; set to wherever you want to save it,
+       filename = "supplementary_allele_freq_heatmap_segmented.pdf",  # saved to your R working directory; set to wherever you want to save it,
        height = 180, width = 240, units = "mm")
 
 
@@ -236,7 +236,7 @@ final_composite_figure <- plot_grid(
 
 ggsave(
   plot = final_composite_figure,
-  filename = "Figure_Introgression_Heatmap_and_Gradient.pdf"  # saved to your R working directory; set to wherever you want to save it,
+  filename = "Figure_Introgression_Heatmap_and_Gradient.pdf",  # saved to your R working directory; set to wherever you want to save it,
   width = 180,                   # Locked to your requested 180mm width
   height = 250,                  # Expanded height to give both panels breathing room
   units = "mm",
@@ -245,7 +245,7 @@ ggsave(
 
 ggsave(
   plot = final_composite_figure,
-  filename = "Figure_Introgression_Heatmap_and_Gradient.png"  # saved to your R working directory; set to wherever you want to save it,
+  filename = "Figure_Introgression_Heatmap_and_Gradient.png",  # saved to your R working directory; set to wherever you want to save it,
   width = 180,                   # Locked to your requested 180mm width
   height = 250,                  # Expanded height to give both panels breathing room
   units = "mm",
