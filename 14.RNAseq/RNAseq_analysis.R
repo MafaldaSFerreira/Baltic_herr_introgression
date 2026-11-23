@@ -11,6 +11,7 @@ library(ggplot2)
 library(tidyverse)
 library(ggrepel)
 library(biomaRt)
+library(cowplot)
 
 # ============================================================================== #
 # 0. ANNOTATION ####
@@ -36,12 +37,9 @@ regions$Chrom <- as.numeric(regions$Chrom)
 # regardless of the working directory.
 FIGSHARE_ROOT <- normalizePath("../Figshare")
 
-save.image(file.path(FIGSHARE_ROOT, "14.RNAseq/RNAanalysis_Environment_20260723.RData"))
+#save.image(file.path(FIGSHARE_ROOT, "14.RNAseq/RNAanalysis_Environment_20260723.RData"))
 
-#dir.create("results", showWarnings=FALSE, recursive=TRUE)
-# Raw STAR alignment output -- not part of the Figshare deposit (too large to
-# share). Set this to wherever your own STAR results live.
-setwd("<path_to_your_STAR_alignment_results>")
+setwd(file.path(FIGSHARE_ROOT, "14.RNAseq/star_counts"))
 results_dir <- file.path(FIGSHARE_ROOT, "14.RNAseq")
 
 design <- read.table("design_genes.txt", header=TRUE, sep="\t")
